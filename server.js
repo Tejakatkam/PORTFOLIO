@@ -85,7 +85,7 @@ async function seedDatabase() {
   await models.Education.create({
     institution: 'CMR Technical Campus',
     degree: 'B.Tech CS (AI & ML)',
-    duration: 'Nov 2022 to Present',
+    duration: 'Nov 2022 to July 2026',
     order: 1
   });
 
@@ -149,9 +149,10 @@ app.get('/admin', requireAuth, async (req, res) => {
     const certifications = await models.Certification.find().sort('order');
     const codingProfiles = await models.CodingProfile.find().sort('order');
     const achievements = await models.Achievement.find().sort('order');
+    const education = await models.Education.find().sort('order');
 
     res.render('admin', { 
-      profile, projects, skills, certifications, codingProfiles, achievements 
+      profile, projects, skills, certifications, codingProfiles, achievements, education 
     });
   } catch (err) {
     console.error(err);
@@ -168,6 +169,11 @@ app.post('/admin/api/profile', requireAuth, async (req, res) => {
 // Utility for simple CRUD on arrays
 const handleCrud = (Model) => async (req, res) => {
   const { action, id, ...data } = req.body;
+  
+  if (data.items && typeof data.items === 'string') {
+    data.items = data.items.split(',').map(s => s.trim());
+  }
+
   if (action === 'create') await Model.create(data);
   else if (action === 'update') await Model.findByIdAndUpdate(id, data);
   else if (action === 'delete') await Model.findByIdAndDelete(id);
@@ -178,6 +184,8 @@ app.post('/admin/api/projects', requireAuth, handleCrud(models.Project));
 app.post('/admin/api/certifications', requireAuth, handleCrud(models.Certification));
 app.post('/admin/api/coding-profiles', requireAuth, handleCrud(models.CodingProfile));
 app.post('/admin/api/achievements', requireAuth, handleCrud(models.Achievement));
+app.post('/admin/api/skills', requireAuth, handleCrud(models.Skill));
+app.post('/admin/api/education', requireAuth, handleCrud(models.Education));
 
 // Add script to run server
 connectDB().then(() => {

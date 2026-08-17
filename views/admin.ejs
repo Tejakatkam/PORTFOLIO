@@ -33,6 +33,8 @@ tailwind.config = {
     <nav class="p-4 space-y-1">
       <button onclick="switchTab('profile')" id="tab-profile" class="tab-btn active w-full text-left px-4 py-2 text-sm font-semibold rounded hover:bg-gray-100">Profile & Meta</button>
       <button onclick="switchTab('projects')" id="tab-projects" class="tab-btn w-full text-left px-4 py-2 text-sm font-semibold rounded hover:bg-gray-100">Projects</button>
+      <button onclick="switchTab('skills')" id="tab-skills" class="tab-btn w-full text-left px-4 py-2 text-sm font-semibold rounded hover:bg-gray-100">Skills</button>
+      <button onclick="switchTab('education')" id="tab-education" class="tab-btn w-full text-left px-4 py-2 text-sm font-semibold rounded hover:bg-gray-100">Education</button>
       <button onclick="switchTab('certs')" id="tab-certs" class="tab-btn w-full text-left px-4 py-2 text-sm font-semibold rounded hover:bg-gray-100">Certifications</button>
       <button onclick="switchTab('coding')" id="tab-coding" class="tab-btn w-full text-left px-4 py-2 text-sm font-semibold rounded hover:bg-gray-100">Coding Profiles</button>
       <button onclick="switchTab('achievements')" id="tab-achievements" class="tab-btn w-full text-left px-4 py-2 text-sm font-semibold rounded hover:bg-gray-100">Achievements</button>
@@ -108,7 +110,7 @@ tailwind.config = {
             <span class="text-xs text-gray-500 font-mono"><%= project.technologies.join(', ') %></span>
           </div>
           <div class="flex gap-2">
-            <button onclick="editProject('<%= project._id %>', '<%= project.title.replace(/'/g, '\\\'') %>', '<%= project.order %>', '<%= project.technologies.join(', ').replace(/'/g, '\\\'') %>', '<%= project.description.replace(/(\r\n|\n|\r)/gm, '\\n').replace(/'/g, '\\\'') %>')" class="text-blue-600 text-sm font-bold px-3 py-1 border border-blue-200 hover:bg-blue-50">Edit</button>
+            <button onclick="editProject('<%= project._id %>', '<%= project.title.replace(/'/g, '\\\'') %>', '<%= project.order %>', '<%= project.technologies.join(', ').replace(/'/g, '\\\'') %>', '<%= project.description.replace(/(\r\n|\n|\r)/gm, '\\n').replace(/'/g, '\\\'') %>', '<%= (project.image || '').replace(/'/g, '\\\'') %>')" class="text-blue-600 text-sm font-bold px-3 py-1 border border-blue-200 hover:bg-blue-50">Edit</button>
             <form action="/admin/api/projects" method="POST" class="inline">
               <input type="hidden" name="action" value="delete">
               <input type="hidden" name="id" value="<%= project._id %>">
@@ -139,12 +141,114 @@ tailwind.config = {
           <input type="text" name="technologies" id="proj-tech" placeholder="React, Node.js, Python" class="w-full border p-2 text-sm" onchange="this.value = this.value.split(',').map(s=>s.trim()).join(',')">
         </div>
         <div>
+          <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Image URL (Optional)</label>
+          <input type="text" name="image" id="proj-image" placeholder="https://..." class="w-full border p-2 text-sm">
+        </div>
+        <div>
           <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Description</label>
           <textarea name="description" id="proj-desc" rows="3" required class="w-full border p-2 text-sm"></textarea>
         </div>
         <div class="flex gap-4">
           <button type="submit" id="proj-submit" class="bg-gray-900 text-white px-6 py-2 text-sm font-bold uppercase tracking-wider">Add Project</button>
-          <button type="button" onclick="resetProjectForm()" class="bg-gray-200 text-gray-800 px-6 py-2 text-sm font-bold uppercase tracking-wider hidden" id="proj-cancel">Cancel Edit</button>
+          <button type="button" onclick="resetProjectForm()" class="bg-gray-200 text-gray-800 px-6 py-2 text-sm font-bold uppercase tracking-wider hidden" id="proj-cancel">Cancel</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Skills Tab -->
+    <section id="content-skills" class="tab-content max-w-4xl">
+      <h2 class="text-2xl font-bold mb-6">Manage Skills</h2>
+      <div class="space-y-4 mb-8">
+        <% skills.forEach(skill => { %>
+        <div class="bg-white p-4 border border-gray-200 flex justify-between items-center shadow-sm">
+          <div>
+            <strong class="block"><%= skill.category %></strong>
+            <span class="text-xs text-gray-500 font-mono"><%= skill.items.join(', ') %></span>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="editSkill('<%= skill._id %>', '<%= skill.category.replace(/'/g, '\\\'') %>', '<%= skill.items.join(', ').replace(/'/g, '\\\'') %>', '<%= skill.order %>')" class="text-blue-600 text-sm font-bold px-3 py-1 border border-blue-200 hover:bg-blue-50">Edit</button>
+            <form action="/admin/api/skills" method="POST" class="inline">
+              <input type="hidden" name="action" value="delete">
+              <input type="hidden" name="id" value="<%= skill._id %>">
+              <button type="submit" class="text-red-600 text-sm font-bold px-3 py-1 border border-red-200 hover:bg-red-50">Delete</button>
+            </form>
+          </div>
+        </div>
+        <% }) %>
+      </div>
+      <h3 id="skill-form-title" class="text-lg font-bold mb-4 border-t pt-8">Add New Skill Category</h3>
+      <form action="/admin/api/skills" method="POST" class="bg-white p-6 border border-gray-200 shadow-sm space-y-4">
+        <input type="hidden" name="action" id="skill-action" value="create">
+        <input type="hidden" name="id" id="skill-id" value="">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Category (e.g., DevOps)</label>
+            <input type="text" name="category" id="skill-category" required class="w-full border p-2 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Order</label>
+            <input type="number" name="order" id="skill-order" value="10" class="w-full border p-2 text-sm">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Technologies (Comma separated)</label>
+          <input type="text" name="items" id="skill-items" placeholder="Docker, Kubernetes, Linux" class="w-full border p-2 text-sm" onchange="this.value = this.value.split(',').map(s=>s.trim()).join(',')">
+        </div>
+        <div class="flex gap-4">
+          <button type="submit" id="skill-submit" class="bg-gray-900 text-white px-6 py-2 text-sm font-bold uppercase tracking-wider">Add Category</button>
+          <button type="button" onclick="resetSkillForm()" class="bg-gray-200 text-gray-800 px-6 py-2 text-sm font-bold uppercase tracking-wider hidden" id="skill-cancel">Cancel</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Education Tab -->
+    <section id="content-education" class="tab-content max-w-4xl">
+      <h2 class="text-2xl font-bold mb-6">Manage Education</h2>
+      <div class="space-y-4 mb-8">
+        <% education.forEach(edu => { %>
+        <div class="bg-white p-4 border border-gray-200 flex justify-between items-center shadow-sm">
+          <div>
+            <strong class="block"><%= edu.degree %></strong>
+            <span class="text-xs text-gray-500 font-mono"><%= edu.institution %> | <%= edu.duration %></span>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="editEdu('<%= edu._id %>', '<%= edu.degree.replace(/'/g, '\\\'') %>', '<%= edu.institution.replace(/'/g, '\\\'') %>', '<%= edu.duration.replace(/'/g, '\\\'') %>', '<%= edu.order %>')" class="text-blue-600 text-sm font-bold px-3 py-1 border border-blue-200 hover:bg-blue-50">Edit</button>
+            <form action="/admin/api/education" method="POST" class="inline">
+              <input type="hidden" name="action" value="delete">
+              <input type="hidden" name="id" value="<%= edu._id %>">
+              <button type="submit" class="text-red-600 text-sm font-bold px-3 py-1 border border-red-200 hover:bg-red-50">Delete</button>
+            </form>
+          </div>
+        </div>
+        <% }) %>
+      </div>
+      <h3 id="edu-form-title" class="text-lg font-bold mb-4 border-t pt-8">Add New Education</h3>
+      <form action="/admin/api/education" method="POST" class="bg-white p-6 border border-gray-200 shadow-sm space-y-4">
+        <input type="hidden" name="action" id="edu-action" value="create">
+        <input type="hidden" name="id" id="edu-id" value="">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Degree</label>
+            <input type="text" name="degree" id="edu-degree" required class="w-full border p-2 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Institution</label>
+            <input type="text" name="institution" id="edu-inst" required class="w-full border p-2 text-sm">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Duration</label>
+            <input type="text" name="duration" id="edu-dur" placeholder="Nov 2022 to July 2026" class="w-full border p-2 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Order</label>
+            <input type="number" name="order" id="edu-order" value="10" class="w-full border p-2 text-sm">
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <button type="submit" id="edu-submit" class="bg-gray-900 text-white px-6 py-2 text-sm font-bold uppercase tracking-wider">Add Education</button>
+          <button type="button" onclick="resetEduForm()" class="bg-gray-200 text-gray-800 px-6 py-2 text-sm font-bold uppercase tracking-wider hidden" id="edu-cancel">Cancel</button>
         </div>
       </form>
     </section>
@@ -152,8 +256,6 @@ tailwind.config = {
     <!-- Certifications Tab -->
     <section id="content-certs" class="tab-content max-w-4xl">
       <h2 class="text-2xl font-bold mb-6">Manage Certifications</h2>
-      
-      <!-- List -->
       <div class="space-y-4 mb-8">
         <% certifications.forEach(cert => { %>
         <div class="bg-white p-4 border border-gray-200 flex justify-between items-center shadow-sm">
@@ -172,8 +274,6 @@ tailwind.config = {
         </div>
         <% }) %>
       </div>
-
-      <!-- Add / Edit Form -->
       <h3 id="cert-form-title" class="text-lg font-bold mb-4 border-t pt-8">Add New Certification</h3>
       <form action="/admin/api/certifications" method="POST" class="bg-white p-6 border border-gray-200 shadow-sm space-y-4">
         <input type="hidden" name="action" id="cert-action" value="create">
@@ -200,7 +300,7 @@ tailwind.config = {
         </div>
         <div class="flex gap-4">
           <button type="submit" id="cert-submit" class="bg-gray-900 text-white px-6 py-2 text-sm font-bold uppercase tracking-wider">Add Certification</button>
-          <button type="button" onclick="resetCertForm()" class="bg-gray-200 text-gray-800 px-6 py-2 text-sm font-bold uppercase tracking-wider hidden" id="cert-cancel">Cancel Edit</button>
+          <button type="button" onclick="resetCertForm()" class="bg-gray-200 text-gray-800 px-6 py-2 text-sm font-bold uppercase tracking-wider hidden" id="cert-cancel">Cancel</button>
         </div>
       </form>
     </section>
@@ -208,8 +308,6 @@ tailwind.config = {
     <!-- Coding Profiles Tab -->
     <section id="content-coding" class="tab-content max-w-4xl">
       <h2 class="text-2xl font-bold mb-6">Manage Coding Profiles</h2>
-      
-      <!-- List -->
       <div class="space-y-4 mb-8">
         <% codingProfiles.forEach(cp => { %>
         <div class="bg-white p-4 border border-gray-200 flex justify-between items-center shadow-sm">
@@ -228,15 +326,13 @@ tailwind.config = {
         </div>
         <% }) %>
       </div>
-
-      <!-- Add / Edit Form -->
       <h3 id="coding-form-title" class="text-lg font-bold mb-4 border-t pt-8">Add New Profile</h3>
       <form action="/admin/api/coding-profiles" method="POST" class="bg-white p-6 border border-gray-200 shadow-sm space-y-4">
         <input type="hidden" name="action" id="coding-action" value="create">
         <input type="hidden" name="id" id="coding-id" value="">
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Platform (e.g. LeetCode)</label>
+            <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Platform</label>
             <input type="text" name="platform" id="coding-platform" required class="w-full border p-2 text-sm">
           </div>
           <div>
@@ -248,7 +344,7 @@ tailwind.config = {
             <input type="text" name="profileUrl" id="coding-url" required class="w-full border p-2 text-sm">
           </div>
           <div>
-            <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Color Theme Class (e.g. emerald, accent)</label>
+            <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Color Theme Class</label>
             <input type="text" name="color" id="coding-color" value="accent" class="w-full border p-2 text-sm">
           </div>
         </div>
@@ -260,7 +356,7 @@ tailwind.config = {
         </div>
         <div class="flex gap-4 mt-4">
           <button type="submit" id="coding-submit" class="bg-gray-900 text-white px-6 py-2 text-sm font-bold uppercase tracking-wider">Add Profile</button>
-          <button type="button" onclick="resetCodingForm()" class="bg-gray-200 text-gray-800 px-6 py-2 text-sm font-bold uppercase tracking-wider hidden" id="coding-cancel">Cancel Edit</button>
+          <button type="button" onclick="resetCodingForm()" class="bg-gray-200 text-gray-800 px-6 py-2 text-sm font-bold uppercase tracking-wider hidden" id="coding-cancel">Cancel</button>
         </div>
       </form>
     </section>
@@ -268,8 +364,6 @@ tailwind.config = {
     <!-- Achievements Tab -->
     <section id="content-achievements" class="tab-content max-w-4xl">
       <h2 class="text-2xl font-bold mb-6">Manage Achievements</h2>
-      
-      <!-- List -->
       <div class="space-y-4 mb-8">
         <% achievements.forEach(ach => { %>
         <div class="bg-white p-4 border border-gray-200 flex justify-between items-center shadow-sm">
@@ -288,8 +382,6 @@ tailwind.config = {
         </div>
         <% }) %>
       </div>
-
-      <!-- Add / Edit Form -->
       <h3 id="ach-form-title" class="text-lg font-bold mb-4 border-t pt-8">Add New Achievement</h3>
       <form action="/admin/api/achievements" method="POST" class="bg-white p-6 border border-gray-200 shadow-sm space-y-4">
         <input type="hidden" name="action" id="ach-action" value="create">
@@ -304,7 +396,7 @@ tailwind.config = {
         </div>
         <div class="flex gap-4">
           <button type="submit" id="ach-submit" class="bg-gray-900 text-white px-6 py-2 text-sm font-bold uppercase tracking-wider">Add Achievement</button>
-          <button type="button" onclick="resetAchForm()" class="bg-gray-200 text-gray-800 px-6 py-2 text-sm font-bold uppercase tracking-wider hidden" id="ach-cancel">Cancel Edit</button>
+          <button type="button" onclick="resetAchForm()" class="bg-gray-200 text-gray-800 px-6 py-2 text-sm font-bold uppercase tracking-wider hidden" id="ach-cancel">Cancel</button>
         </div>
       </form>
     </section>
@@ -315,20 +407,18 @@ tailwind.config = {
     function switchTab(tabId) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-      
       document.getElementById('content-' + tabId).classList.add('active');
       document.getElementById('tab-' + tabId).classList.add('active');
     }
 
-    // Projects Edit
-    function editProject(id, title, order, tech, desc) {
+    function editProject(id, title, order, tech, desc, image) {
       document.getElementById('proj-action').value = 'update';
       document.getElementById('proj-id').value = id;
       document.getElementById('proj-title').value = title;
       document.getElementById('proj-order').value = order;
       document.getElementById('proj-tech').value = tech;
       document.getElementById('proj-desc').value = desc;
-      
+      document.getElementById('proj-image').value = image;
       document.getElementById('proj-form-title').innerText = 'Edit Project';
       document.getElementById('proj-submit').innerText = 'Update Project';
       document.getElementById('proj-cancel').classList.remove('hidden');
@@ -340,13 +430,56 @@ tailwind.config = {
       document.getElementById('proj-order').value = '10';
       document.getElementById('proj-tech').value = '';
       document.getElementById('proj-desc').value = '';
-      
+      document.getElementById('proj-image').value = '';
       document.getElementById('proj-form-title').innerText = 'Add New Project';
       document.getElementById('proj-submit').innerText = 'Add Project';
       document.getElementById('proj-cancel').classList.add('hidden');
     }
 
-    // Certifications Edit
+    function editSkill(id, category, items, order) {
+      document.getElementById('skill-action').value = 'update';
+      document.getElementById('skill-id').value = id;
+      document.getElementById('skill-category').value = category;
+      document.getElementById('skill-items').value = items;
+      document.getElementById('skill-order').value = order;
+      document.getElementById('skill-form-title').innerText = 'Edit Category';
+      document.getElementById('skill-submit').innerText = 'Update Category';
+      document.getElementById('skill-cancel').classList.remove('hidden');
+    }
+    function resetSkillForm() {
+      document.getElementById('skill-action').value = 'create';
+      document.getElementById('skill-id').value = '';
+      document.getElementById('skill-category').value = '';
+      document.getElementById('skill-items').value = '';
+      document.getElementById('skill-order').value = '10';
+      document.getElementById('skill-form-title').innerText = 'Add New Category';
+      document.getElementById('skill-submit').innerText = 'Add Category';
+      document.getElementById('skill-cancel').classList.add('hidden');
+    }
+
+    function editEdu(id, degree, inst, dur, order) {
+      document.getElementById('edu-action').value = 'update';
+      document.getElementById('edu-id').value = id;
+      document.getElementById('edu-degree').value = degree;
+      document.getElementById('edu-inst').value = inst;
+      document.getElementById('edu-dur').value = dur;
+      document.getElementById('edu-order').value = order;
+      document.getElementById('edu-form-title').innerText = 'Edit Education';
+      document.getElementById('edu-submit').innerText = 'Update Education';
+      document.getElementById('edu-cancel').classList.remove('hidden');
+    }
+    function resetEduForm() {
+      document.getElementById('edu-action').value = 'create';
+      document.getElementById('edu-id').value = '';
+      document.getElementById('edu-degree').value = '';
+      document.getElementById('edu-inst').value = '';
+      document.getElementById('edu-dur').value = '';
+      document.getElementById('edu-order').value = '10';
+      document.getElementById('edu-form-title').innerText = 'Add New Education';
+      document.getElementById('edu-submit').innerText = 'Add Education';
+      document.getElementById('edu-cancel').classList.add('hidden');
+    }
+
     function editCert(id, name, issuer, date, order) {
       document.getElementById('cert-action').value = 'update';
       document.getElementById('cert-id').value = id;
@@ -354,7 +487,6 @@ tailwind.config = {
       document.getElementById('cert-issuer').value = issuer;
       document.getElementById('cert-date').value = date;
       document.getElementById('cert-order').value = order;
-      
       document.getElementById('cert-form-title').innerText = 'Edit Certification';
       document.getElementById('cert-submit').innerText = 'Update Certification';
       document.getElementById('cert-cancel').classList.remove('hidden');
@@ -366,13 +498,11 @@ tailwind.config = {
       document.getElementById('cert-issuer').value = '';
       document.getElementById('cert-date').value = '';
       document.getElementById('cert-order').value = '10';
-      
       document.getElementById('cert-form-title').innerText = 'Add New Certification';
       document.getElementById('cert-submit').innerText = 'Add Certification';
       document.getElementById('cert-cancel').classList.add('hidden');
     }
 
-    // Coding Profiles Edit
     function editCoding(id, platform, username, profileUrl, color, m1l, m1v, m2l, m2v) {
       document.getElementById('coding-action').value = 'update';
       document.getElementById('coding-id').value = id;
@@ -384,7 +514,6 @@ tailwind.config = {
       document.getElementById('coding-m1v').value = m1v;
       document.getElementById('coding-m2l').value = m2l;
       document.getElementById('coding-m2v').value = m2v;
-      
       document.getElementById('coding-form-title').innerText = 'Edit Profile';
       document.getElementById('coding-submit').innerText = 'Update Profile';
       document.getElementById('coding-cancel').classList.remove('hidden');
@@ -400,19 +529,16 @@ tailwind.config = {
       document.getElementById('coding-m1v').value = '';
       document.getElementById('coding-m2l').value = '';
       document.getElementById('coding-m2v').value = '';
-      
       document.getElementById('coding-form-title').innerText = 'Add New Profile';
       document.getElementById('coding-submit').innerText = 'Add Profile';
       document.getElementById('coding-cancel').classList.add('hidden');
     }
 
-    // Achievements Edit
     function editAch(id, title, desc) {
       document.getElementById('ach-action').value = 'update';
       document.getElementById('ach-id').value = id;
       document.getElementById('ach-title').value = title;
       document.getElementById('ach-desc').value = desc;
-      
       document.getElementById('ach-form-title').innerText = 'Edit Achievement';
       document.getElementById('ach-submit').innerText = 'Update Achievement';
       document.getElementById('ach-cancel').classList.remove('hidden');
@@ -422,7 +548,6 @@ tailwind.config = {
       document.getElementById('ach-id').value = '';
       document.getElementById('ach-title').value = '';
       document.getElementById('ach-desc').value = '';
-      
       document.getElementById('ach-form-title').innerText = 'Add New Achievement';
       document.getElementById('ach-submit').innerText = 'Add Achievement';
       document.getElementById('ach-cancel').classList.add('hidden');
