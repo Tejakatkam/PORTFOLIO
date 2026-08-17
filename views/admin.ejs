@@ -110,7 +110,7 @@ tailwind.config = {
             <span class="text-xs text-gray-500 font-mono"><%= project.technologies.join(', ') %></span>
           </div>
           <div class="flex gap-2">
-            <button onclick="editProject('<%= project._id %>', '<%= project.title.replace(/'/g, '\\\'') %>', '<%= project.order %>', '<%= project.technologies.join(', ').replace(/'/g, '\\\'') %>', '<%= project.description.replace(/(\r\n|\n|\r)/gm, '\\n').replace(/'/g, '\\\'') %>', '<%= (project.image || '').replace(/'/g, '\\\'') %>')" class="text-blue-600 text-sm font-bold px-3 py-1 border border-blue-200 hover:bg-blue-50">Edit</button>
+            <button onclick="editProject('<%= project._id %>', '<%= project.title.replace(/'/g, '\\\'') %>', '<%= project.order %>', '<%= project.technologies.join(', ').replace(/'/g, '\\\'') %>', '<%= project.description.replace(/(\r\n|\n|\r)/gm, '\\n').replace(/'/g, '\\\'') %>', '<%= (project.image || '').replace(/'/g, '\\\'') %>', '<%= (project.githubUrl || '').replace(/'/g, '\\\'') %>', '<%= (project.liveUrl || '').replace(/'/g, '\\\'') %>')" class="text-blue-600 text-sm font-bold px-3 py-1 border border-blue-200 hover:bg-blue-50">Edit</button>
             <form action="/admin/api/projects" method="POST" class="inline">
               <input type="hidden" name="action" value="delete">
               <input type="hidden" name="id" value="<%= project._id %>">
@@ -139,6 +139,16 @@ tailwind.config = {
         <div>
           <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Technologies (Comma separated)</label>
           <input type="text" name="technologies" id="proj-tech" placeholder="React, Node.js, Python" class="w-full border p-2 text-sm" onchange="this.value = this.value.split(',').map(s=>s.trim()).join(',')">
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold uppercase text-gray-600 mb-1">GitHub URL (Optional)</label>
+            <input type="text" name="githubUrl" id="proj-github" placeholder="https://github.com/..." class="w-full border p-2 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Live URL (Optional)</label>
+            <input type="text" name="liveUrl" id="proj-live" placeholder="https://..." class="w-full border p-2 text-sm">
+          </div>
         </div>
         <div>
           <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Image URL (Optional)</label>
@@ -212,7 +222,7 @@ tailwind.config = {
             <span class="text-xs text-gray-500 font-mono"><%= edu.institution %> | <%= edu.duration %></span>
           </div>
           <div class="flex gap-2">
-            <button onclick="editEdu('<%= edu._id %>', '<%= edu.degree.replace(/'/g, '\\\'') %>', '<%= edu.institution.replace(/'/g, '\\\'') %>', '<%= edu.duration.replace(/'/g, '\\\'') %>', '<%= edu.order %>')" class="text-blue-600 text-sm font-bold px-3 py-1 border border-blue-200 hover:bg-blue-50">Edit</button>
+            <button onclick="editEdu('<%= edu._id %>', '<%= edu.degree.replace(/'/g, '\\\'') %>', '<%= edu.institution.replace(/'/g, '\\\'') %>', '<%= edu.duration.replace(/'/g, '\\\'') %>', '<%= (edu.gradeType || '').replace(/'/g, '\\\'') %>', '<%= (edu.gradeValue || '').replace(/'/g, '\\\'') %>', '<%= edu.order %>')" class="text-blue-600 text-sm font-bold px-3 py-1 border border-blue-200 hover:bg-blue-50">Edit</button>
             <form action="/admin/api/education" method="POST" class="inline">
               <input type="hidden" name="action" value="delete">
               <input type="hidden" name="id" value="<%= edu._id %>">
@@ -244,6 +254,16 @@ tailwind.config = {
           <div>
             <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Order</label>
             <input type="number" name="order" id="edu-order" value="10" class="w-full border p-2 text-sm">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Grade Type (CGPA/Marks/%)</label>
+            <input type="text" name="gradeType" id="edu-grade-type" placeholder="CGPA" class="w-full border p-2 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Grade Value</label>
+            <input type="text" name="gradeValue" id="edu-grade-value" placeholder="8.87" class="w-full border p-2 text-sm">
           </div>
         </div>
         <div class="flex gap-4">
@@ -411,7 +431,7 @@ tailwind.config = {
       document.getElementById('tab-' + tabId).classList.add('active');
     }
 
-    function editProject(id, title, order, tech, desc, image) {
+    function editProject(id, title, order, tech, desc, image, githubUrl, liveUrl) {
       document.getElementById('proj-action').value = 'update';
       document.getElementById('proj-id').value = id;
       document.getElementById('proj-title').value = title;
@@ -419,6 +439,8 @@ tailwind.config = {
       document.getElementById('proj-tech').value = tech;
       document.getElementById('proj-desc').value = desc;
       document.getElementById('proj-image').value = image;
+      document.getElementById('proj-github').value = githubUrl;
+      document.getElementById('proj-live').value = liveUrl;
       document.getElementById('proj-form-title').innerText = 'Edit Project';
       document.getElementById('proj-submit').innerText = 'Update Project';
       document.getElementById('proj-cancel').classList.remove('hidden');
@@ -431,6 +453,8 @@ tailwind.config = {
       document.getElementById('proj-tech').value = '';
       document.getElementById('proj-desc').value = '';
       document.getElementById('proj-image').value = '';
+      document.getElementById('proj-github').value = '';
+      document.getElementById('proj-live').value = '';
       document.getElementById('proj-form-title').innerText = 'Add New Project';
       document.getElementById('proj-submit').innerText = 'Add Project';
       document.getElementById('proj-cancel').classList.add('hidden');
@@ -457,12 +481,14 @@ tailwind.config = {
       document.getElementById('skill-cancel').classList.add('hidden');
     }
 
-    function editEdu(id, degree, inst, dur, order) {
+    function editEdu(id, degree, inst, dur, gradeType, gradeValue, order) {
       document.getElementById('edu-action').value = 'update';
       document.getElementById('edu-id').value = id;
       document.getElementById('edu-degree').value = degree;
       document.getElementById('edu-inst').value = inst;
       document.getElementById('edu-dur').value = dur;
+      document.getElementById('edu-grade-type').value = gradeType;
+      document.getElementById('edu-grade-value').value = gradeValue;
       document.getElementById('edu-order').value = order;
       document.getElementById('edu-form-title').innerText = 'Edit Education';
       document.getElementById('edu-submit').innerText = 'Update Education';
@@ -474,6 +500,8 @@ tailwind.config = {
       document.getElementById('edu-degree').value = '';
       document.getElementById('edu-inst').value = '';
       document.getElementById('edu-dur').value = '';
+      document.getElementById('edu-grade-type').value = '';
+      document.getElementById('edu-grade-value').value = '';
       document.getElementById('edu-order').value = '10';
       document.getElementById('edu-form-title').innerText = 'Add New Education';
       document.getElementById('edu-submit').innerText = 'Add Education';

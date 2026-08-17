@@ -53,6 +53,8 @@ const EducationSchema = new mongoose.Schema({
   institution: String,
   degree: String,
   duration: String,
+  gradeType: { type: String, default: '' },
+  gradeValue: { type: String, default: '' },
   order: { type: Number, default: 0 }
 });
 
