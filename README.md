@@ -313,7 +313,7 @@ I'm interested in building practical AI and software solutions while continuousl
 
 * 🔗 LinkedIn: https://www.linkedin.com/in/teja-katkam/
 * 💻 GitHub: https://github.com/Tejakatkam
-* 🌐 Portfolio: `YOUR_LIVE_PORTFOLIO_URL`
+* 🌐 Portfolio: https://tejakatkam.onrender.com/
 
 ---
 
