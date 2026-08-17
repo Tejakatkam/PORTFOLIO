@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CMS Dashboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+      colors: { 'accent': '#FF6B2B', 'bg-base': '#f9fafb' }
+    }
+  }
+}
+</script>
+<style>
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  .tab-btn.active { background-color: #111827; color: white; }
+</style>
+</head>
+<body class="bg-bg-base text-gray-900 font-sans min-h-screen flex flex-col md:flex-row">
+
+  <!-- Sidebar -->
+  <aside class="w-full md:w-64 bg-white border-r border-gray-200 shrink-0">
+    <div class="p-6 border-b border-gray-200">
+      <h1 class="font-bold text-xl tracking-tight">Portfolio CMS</h1>
+      <a href="/" target="_blank" class="text-xs font-mono text-accent hover:underline mt-1 block">View Live Site ↗</a>
+    </div>
+    <nav class="p-4 space-y-1">
+      <button onclick="switchTab('profile')" id="tab-profile" class="tab-btn active w-full text-left px-4 py-2 text-sm font-semibold rounded hover:bg-gray-100">Profile & Meta</button>
+      <button onclick="switchTab('projects')" id="tab-projects" class="tab-btn w-full text-left px-4 py-2 text-sm font-semibold rounded hover:bg-gray-100">Projects</button>
+      <button onclick="switchTab('certs')" id="tab-certs" class="tab-btn w-full text-left px-4 py-2 text-sm font-semibold rounded hover:bg-gray-100">Certifications</button>
+      <button onclick="switchTab('coding')" id="tab-coding" class="tab-btn w-full text-left px-4 py-2 text-sm font-semibold rounded hover:bg-gray-100">Coding Profiles</button>
+      <button onclick="switchTab('achievements')" id="tab-achievements" class="tab-btn w-full text-left px-4 py-2 text-sm font-semibold rounded hover:bg-gray-100">Achievements</button>
+    </nav>
+    <div class="p-4 border-t border-gray-200 mt-auto">
+      <a href="/admin/logout" class="text-sm font-bold text-red-600 hover:underline">Logout</a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-6 lg:p-10 overflow-y-auto">
+    
+    <!-- Profile Tab -->
+    <section id="content-profile" class="tab-content active max-w-3xl">
+      <h2 class="text-2xl font-bold mb-6">Profile Settings</h2>
+      <form action="/admin/api/profile" method="POST" class="bg-white p-6 border border-gray-200 shadow-sm space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Name</label>
+            <input type="text" name="name" value="<%= profile.name %>" class="w-full border p-2 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Title</label>
+            <input type="text" name="title" value="<%= profile.title %>" class="w-full border p-2 text-sm">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Introduction</label>
+          <textarea name="introduction" rows="2" class="w-full border p-2 text-sm"><%= profile.introduction %></textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase text-gray-600 mb-1">About Section</label>
+          <textarea name="about" rows="4" class="w-full border p-2 text-sm"><%= profile.about %></textarea>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold uppercase text-gray-600 mb-1">CGPA</label>
+            <input type="text" name="cgpa" value="<%= profile.cgpa %>" class="w-full border p-2 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase text-gray-600 mb-1">CGPA Max</label>
+            <input type="text" name="cgpaMax" value="<%= profile.cgpaMax %>" class="w-full border p-2 text-sm">
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Email</label>
+            <input type="text" name="email" value="<%= profile.email %>" class="w-full border p-2 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Phone</label>
+            <input type="text" name="phone" value="<%= profile.phone %>" class="w-full border p-2 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase text-gray-600 mb-1">GitHub</label>
+            <input type="text" name="github" value="<%= profile.github %>" class="w-full border p-2 text-sm">
+          </div>
+        </div>
+        <button type="submit" class="bg-gray-900 text-white px-6 py-2 text-sm font-bold uppercase tracking-wider mt-4">Save Profile</button>
+      </form>
+    </section>
+
+    <!-- Projects Tab -->
+    <section id="content-projects" class="tab-content max-w-4xl">
+      <h2 class="text-2xl font-bold mb-6">Manage Projects</h2>
+      
+      <!-- List -->
+      <div class="space-y-4 mb-8">
+        <% projects.forEach(project => { %>
+        <div class="bg-white p-4 border border-gray-200 flex justify-between items-center shadow-sm">
+          <div>
+            <strong class="block"><%= project.title %></strong>
+            <span class="text-xs text-gray-500 font-mono"><%= project.technologies.join(', ') %></span>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="editProject('<%= project._id %>', '<%= project.title.replace(/'/g, '\\\'') %>', '<%= project.order %>', '<%= project.technologies.join(', ').replace(/'/g, '\\\'') %>', '<%= project.description.replace(/(\r\n|\n|\r)/gm, '\\n').replace(/'/g, '\\\'') %>')" class="text-blue-600 text-sm font-bold px-3 py-1 border border-blue-200 hover:bg-blue-50">Edit</button>
+            <form action="/admin/api/projects" method="POST" class="inline">
+              <input type="hidden" name="action" value="delete">
+              <input type="hidden" name="id" value="<%= project._id %>">
+              <button type="submit" class="text-red-600 text-sm font-bold px-3 py-1 border border-red-200 hover:bg-red-50">Delete</button>
+            </form>
+          </div>
+        </div>
+        <% }) %>
+      </div>
+
+      <!-- Add / Edit Form -->
+      <h3 id="proj-form-title" class="text-lg font-bold mb-4 border-t pt-8">Add New Project</h3>
+      <form action="/admin/api/projects" method="POST" class="bg-white p-6 border border-gray-200 shadow-sm space-y-4">
+        <input type="hidden" name="action" id="proj-action" value="create">
+        <input type="hidden" name="id" id="proj-id" value="">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Title</label>
+            <input type="text" name="title" id="proj-title" required class="w-full border p-2 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Order (Number)</label>
+            <input type="number" name="order" id="proj-order" value="10" class="w-full border p-2 text-sm">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Technologies (Comma separated)</label>
+          <input type="text" name="technologies" id="proj-tech" placeholder="React, Node.js, Python" class="w-full border p-2 text-sm" onchange="this.value = this.value.split(',').map(s=>s.trim()).join(',')">
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Description</label>
+          <textarea name="description" id="proj-desc" rows="3" required class="w-full border p-2 text-sm"></textarea>
+        </div>
+        <div class="flex gap-4">
+          <button type="submit" id="proj-submit" class="bg-gray-900 text-white px-6 py-2 text-sm font-bold uppercase tracking-wider">Add Project</button>
+          <button type="button" onclick="resetProjectForm()" class="bg-gray-200 text-gray-800 px-6 py-2 text-sm font-bold uppercase tracking-wider hidden" id="proj-cancel">Cancel Edit</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Certifications Tab -->
+    <section id="content-certs" class="tab-content max-w-4xl">
+      <h2 class="text-2xl font-bold mb-6">Manage Certifications</h2>
+      
+      <!-- List -->
+      <div class="space-y-4 mb-8">
+        <% certifications.forEach(cert => { %>
+        <div class="bg-white p-4 border border-gray-200 flex justify-between items-center shadow-sm">
+          <div>
+            <strong class="block"><%= cert.name %></strong>
+            <span class="text-xs text-gray-500 font-mono"><%= cert.issuer %> | <%= cert.date %></span>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="editCert('<%= cert._id %>', '<%= cert.name.replace(/'/g, '\\\'') %>', '<%= cert.issuer.replace(/'/g, '\\\'') %>', '<%= (cert.date || '').replace(/'/g, '\\\'') %>', '<%= cert.order %>')" class="text-blue-600 text-sm font-bold px-3 py-1 border border-blue-200 hover:bg-blue-50">Edit</button>
+            <form action="/admin/api/certifications" method="POST" class="inline">
+              <input type="hidden" name="action" value="delete">
+              <input type="hidden" name="id" value="<%= cert._id %>">
+              <button type="submit" class="text-red-600 text-sm font-bold px-3 py-1 border border-red-200 hover:bg-red-50">Delete</button>
+            </form>
+          </div>
+        </div>
+        <% }) %>
+      </div>
+
+      <!-- Add / Edit Form -->
+      <h3 id="cert-form-title" class="text-lg font-bold mb-4 border-t pt-8">Add New Certification</h3>
+      <form action="/admin/api/certifications" method="POST" class="bg-white p-6 border border-gray-200 shadow-sm space-y-4">
+        <input type="hidden" name="action" id="cert-action" value="create">
+        <input type="hidden" name="id" id="cert-id" value="">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Name</label>
+            <input type="text" name="name" id="cert-name" required class="w-full border p-2 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Issuer</label>
+            <input type="text" name="issuer" id="cert-issuer" required class="w-full border p-2 text-sm">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Date (e.g. Dec 2025)</label>
+            <input type="text" name="date" id="cert-date" class="w-full border p-2 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Order</label>
+            <input type="number" name="order" id="cert-order" value="10" class="w-full border p-2 text-sm">
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <button type="submit" id="cert-submit" class="bg-gray-900 text-white px-6 py-2 text-sm font-bold uppercase tracking-wider">Add Certification</button>
+          <button type="button" onclick="resetCertForm()" class="bg-gray-200 text-gray-800 px-6 py-2 text-sm font-bold uppercase tracking-wider hidden" id="cert-cancel">Cancel Edit</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Coding Profiles Tab -->
+    <section id="content-coding" class="tab-content max-w-4xl">
+      <h2 class="text-2xl font-bold mb-6">Manage Coding Profiles</h2>
+      
+      <!-- List -->
+      <div class="space-y-4 mb-8">
+        <% codingProfiles.forEach(cp => { %>
+        <div class="bg-white p-4 border border-gray-200 flex justify-between items-center shadow-sm">
+          <div>
+            <strong class="block"><%= cp.platform %> (<%= cp.username %>)</strong>
+            <span class="text-xs text-gray-500 font-mono"><%= cp.metric1Label %>: <%= cp.metric1Value %> | <%= cp.metric2Label %>: <%= cp.metric2Value %></span>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="editCoding('<%= cp._id %>', '<%= cp.platform.replace(/'/g, '\\\'') %>', '<%= cp.username.replace(/'/g, '\\\'') %>', '<%= cp.profileUrl.replace(/'/g, '\\\'') %>', '<%= cp.color %>', '<%= cp.metric1Label.replace(/'/g, '\\\'') %>', '<%= cp.metric1Value.replace(/'/g, '\\\'') %>', '<%= cp.metric2Label.replace(/'/g, '\\\'') %>', '<%= cp.metric2Value.replace(/'/g, '\\\'') %>')" class="text-blue-600 text-sm font-bold px-3 py-1 border border-blue-200 hover:bg-blue-50">Edit</button>
+            <form action="/admin/api/coding-profiles" method="POST" class="inline">
+              <input type="hidden" name="action" value="delete">
+              <input type="hidden" name="id" value="<%= cp._id %>">
+              <button type="submit" class="text-red-600 text-sm font-bold px-3 py-1 border border-red-200 hover:bg-red-50">Delete</button>
+            </form>
+          </div>
+        </div>
+        <% }) %>
+      </div>
+
+      <!-- Add / Edit Form -->
+      <h3 id="coding-form-title" class="text-lg font-bold mb-4 border-t pt-8">Add New Profile</h3>
+      <form action="/admin/api/coding-profiles" method="POST" class="bg-white p-6 border border-gray-200 shadow-sm space-y-4">
+        <input type="hidden" name="action" id="coding-action" value="create">
+        <input type="hidden" name="id" id="coding-id" value="">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Platform (e.g. LeetCode)</label>
+            <input type="text" name="platform" id="coding-platform" required class="w-full border p-2 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Username</label>
+            <input type="text" name="username" id="coding-username" required class="w-full border p-2 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Profile URL</label>
+            <input type="text" name="profileUrl" id="coding-url" required class="w-full border p-2 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Color Theme Class (e.g. emerald, accent)</label>
+            <input type="text" name="color" id="coding-color" value="accent" class="w-full border p-2 text-sm">
+          </div>
+        </div>
+        <div class="grid grid-cols-4 gap-4">
+          <div><label class="block text-xs font-bold">Metric 1 Label</label><input type="text" name="metric1Label" id="coding-m1l" class="w-full border p-2 text-sm"></div>
+          <div><label class="block text-xs font-bold">Metric 1 Value</label><input type="text" name="metric1Value" id="coding-m1v" class="w-full border p-2 text-sm"></div>
+          <div><label class="block text-xs font-bold">Metric 2 Label</label><input type="text" name="metric2Label" id="coding-m2l" class="w-full border p-2 text-sm"></div>
+          <div><label class="block text-xs font-bold">Metric 2 Value</label><input type="text" name="metric2Value" id="coding-m2v" class="w-full border p-2 text-sm"></div>
+        </div>
+        <div class="flex gap-4 mt-4">
+          <button type="submit" id="coding-submit" class="bg-gray-900 text-white px-6 py-2 text-sm font-bold uppercase tracking-wider">Add Profile</button>
+          <button type="button" onclick="resetCodingForm()" class="bg-gray-200 text-gray-800 px-6 py-2 text-sm font-bold uppercase tracking-wider hidden" id="coding-cancel">Cancel Edit</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Achievements Tab -->
+    <section id="content-achievements" class="tab-content max-w-4xl">
+      <h2 class="text-2xl font-bold mb-6">Manage Achievements</h2>
+      
+      <!-- List -->
+      <div class="space-y-4 mb-8">
+        <% achievements.forEach(ach => { %>
+        <div class="bg-white p-4 border border-gray-200 flex justify-between items-center shadow-sm">
+          <div>
+            <strong class="block"><%= ach.title %></strong>
+            <span class="text-xs text-gray-500 font-mono"><%= ach.description %></span>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="editAch('<%= ach._id %>', '<%= ach.title.replace(/'/g, '\\\'') %>', '<%= ach.description.replace(/(\r\n|\n|\r)/gm, '\\n').replace(/'/g, '\\\'') %>')" class="text-blue-600 text-sm font-bold px-3 py-1 border border-blue-200 hover:bg-blue-50">Edit</button>
+            <form action="/admin/api/achievements" method="POST" class="inline">
+              <input type="hidden" name="action" value="delete">
+              <input type="hidden" name="id" value="<%= ach._id %>">
+              <button type="submit" class="text-red-600 text-sm font-bold px-3 py-1 border border-red-200 hover:bg-red-50">Delete</button>
+            </form>
+          </div>
+        </div>
+        <% }) %>
+      </div>
+
+      <!-- Add / Edit Form -->
+      <h3 id="ach-form-title" class="text-lg font-bold mb-4 border-t pt-8">Add New Achievement</h3>
+      <form action="/admin/api/achievements" method="POST" class="bg-white p-6 border border-gray-200 shadow-sm space-y-4">
+        <input type="hidden" name="action" id="ach-action" value="create">
+        <input type="hidden" name="id" id="ach-id" value="">
+        <div>
+          <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Title</label>
+          <input type="text" name="title" id="ach-title" required class="w-full border p-2 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Description</label>
+          <textarea name="description" id="ach-desc" rows="2" required class="w-full border p-2 text-sm"></textarea>
+        </div>
+        <div class="flex gap-4">
+          <button type="submit" id="ach-submit" class="bg-gray-900 text-white px-6 py-2 text-sm font-bold uppercase tracking-wider">Add Achievement</button>
+          <button type="button" onclick="resetAchForm()" class="bg-gray-200 text-gray-800 px-6 py-2 text-sm font-bold uppercase tracking-wider hidden" id="ach-cancel">Cancel Edit</button>
+        </div>
+      </form>
+    </section>
+
+  </main>
+
+  <script>
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      
+      document.getElementById('content-' + tabId).classList.add('active');
+      document.getElementById('tab-' + tabId).classList.add('active');
+    }
+
+    // Projects Edit
+    function editProject(id, title, order, tech, desc) {
+      document.getElementById('proj-action').value = 'update';
+      document.getElementById('proj-id').value = id;
+      document.getElementById('proj-title').value = title;
+      document.getElementById('proj-order').value = order;
+      document.getElementById('proj-tech').value = tech;
+      document.getElementById('proj-desc').value = desc;
+      
+      document.getElementById('proj-form-title').innerText = 'Edit Project';
+      document.getElementById('proj-submit').innerText = 'Update Project';
+      document.getElementById('proj-cancel').classList.remove('hidden');
+    }
+    function resetProjectForm() {
+      document.getElementById('proj-action').value = 'create';
+      document.getElementById('proj-id').value = '';
+      document.getElementById('proj-title').value = '';
+      document.getElementById('proj-order').value = '10';
+      document.getElementById('proj-tech').value = '';
+      document.getElementById('proj-desc').value = '';
+      
+      document.getElementById('proj-form-title').innerText = 'Add New Project';
+      document.getElementById('proj-submit').innerText = 'Add Project';
+      document.getElementById('proj-cancel').classList.add('hidden');
+    }
+
+    // Certifications Edit
+    function editCert(id, name, issuer, date, order) {
+      document.getElementById('cert-action').value = 'update';
+      document.getElementById('cert-id').value = id;
+      document.getElementById('cert-name').value = name;
+      document.getElementById('cert-issuer').value = issuer;
+      document.getElementById('cert-date').value = date;
+      document.getElementById('cert-order').value = order;
+      
+      document.getElementById('cert-form-title').innerText = 'Edit Certification';
+      document.getElementById('cert-submit').innerText = 'Update Certification';
+      document.getElementById('cert-cancel').classList.remove('hidden');
+    }
+    function resetCertForm() {
+      document.getElementById('cert-action').value = 'create';
+      document.getElementById('cert-id').value = '';
+      document.getElementById('cert-name').value = '';
+      document.getElementById('cert-issuer').value = '';
+      document.getElementById('cert-date').value = '';
+      document.getElementById('cert-order').value = '10';
+      
+      document.getElementById('cert-form-title').innerText = 'Add New Certification';
+      document.getElementById('cert-submit').innerText = 'Add Certification';
+      document.getElementById('cert-cancel').classList.add('hidden');
+    }
+
+    // Coding Profiles Edit
+    function editCoding(id, platform, username, profileUrl, color, m1l, m1v, m2l, m2v) {
+      document.getElementById('coding-action').value = 'update';
+      document.getElementById('coding-id').value = id;
+      document.getElementById('coding-platform').value = platform;
+      document.getElementById('coding-username').value = username;
+      document.getElementById('coding-url').value = profileUrl;
+      document.getElementById('coding-color').value = color;
+      document.getElementById('coding-m1l').value = m1l;
+      document.getElementById('coding-m1v').value = m1v;
+      document.getElementById('coding-m2l').value = m2l;
+      document.getElementById('coding-m2v').value = m2v;
+      
+      document.getElementById('coding-form-title').innerText = 'Edit Profile';
+      document.getElementById('coding-submit').innerText = 'Update Profile';
+      document.getElementById('coding-cancel').classList.remove('hidden');
+    }
+    function resetCodingForm() {
+      document.getElementById('coding-action').value = 'create';
+      document.getElementById('coding-id').value = '';
+      document.getElementById('coding-platform').value = '';
+      document.getElementById('coding-username').value = '';
+      document.getElementById('coding-url').value = '';
+      document.getElementById('coding-color').value = 'accent';
+      document.getElementById('coding-m1l').value = '';
+      document.getElementById('coding-m1v').value = '';
+      document.getElementById('coding-m2l').value = '';
+      document.getElementById('coding-m2v').value = '';
+      
+      document.getElementById('coding-form-title').innerText = 'Add New Profile';
+      document.getElementById('coding-submit').innerText = 'Add Profile';
+      document.getElementById('coding-cancel').classList.add('hidden');
+    }
+
+    // Achievements Edit
+    function editAch(id, title, desc) {
+      document.getElementById('ach-action').value = 'update';
+      document.getElementById('ach-id').value = id;
+      document.getElementById('ach-title').value = title;
+      document.getElementById('ach-desc').value = desc;
+      
+      document.getElementById('ach-form-title').innerText = 'Edit Achievement';
+      document.getElementById('ach-submit').innerText = 'Update Achievement';
+      document.getElementById('ach-cancel').classList.remove('hidden');
+    }
+    function resetAchForm() {
+      document.getElementById('ach-action').value = 'create';
+      document.getElementById('ach-id').value = '';
+      document.getElementById('ach-title').value = '';
+      document.getElementById('ach-desc').value = '';
+      
+      document.getElementById('ach-form-title').innerText = 'Add New Achievement';
+      document.getElementById('ach-submit').innerText = 'Add Achievement';
+      document.getElementById('ach-cancel').classList.add('hidden');
+    }
+  </script>
+</body>
+</html>
