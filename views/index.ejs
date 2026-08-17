@@ -137,10 +137,10 @@ tailwind.config = {
         <h2 class="font-display mt-4 text-4xl lg:text-5xl font-bold tracking-tight text-text-main">Featured Projects</h2>
       </div>
       <div class="flex gap-2">
-        <button onclick="document.getElementById('projects-slider').scrollBy({left: -400, behavior: 'smooth'})" class="w-12 h-12 flex items-center justify-center bg-bg-base border border-border-strong hover:bg-bg-subtle transition-colors" aria-label="Previous Project">
+        <button onclick="const s = document.getElementById('projects-slider'); s.scrollBy({left: -s.firstElementChild.clientWidth, behavior: 'smooth'})" class="w-12 h-12 flex items-center justify-center bg-bg-base border border-border-strong hover:bg-bg-subtle transition-colors" aria-label="Previous Project">
           <svg class="w-6 h-6 text-text-main" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path></svg>
         </button>
-        <button onclick="document.getElementById('projects-slider').scrollBy({left: 400, behavior: 'smooth'})" class="w-12 h-12 flex items-center justify-center bg-bg-base border border-border-strong hover:bg-bg-subtle transition-colors" aria-label="Next Project">
+        <button onclick="const s = document.getElementById('projects-slider'); s.scrollBy({left: s.firstElementChild.clientWidth, behavior: 'smooth'})" class="w-12 h-12 flex items-center justify-center bg-bg-base border border-border-strong hover:bg-bg-subtle transition-colors" aria-label="Next Project">
           <svg class="w-6 h-6 text-text-main" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path></svg>
         </button>
       </div>
@@ -148,7 +148,7 @@ tailwind.config = {
 
     <div id="projects-slider" class="flex overflow-x-auto snap-x gap-px bg-border-strong border border-border-strong pb-4 scrollbar-none" style="scrollbar-width: none; -ms-overflow-style: none;">
       <% projects.forEach((project, index) => { %>
-      <article class="w-full sm:min-w-[50%] lg:min-w-[33.333%] shrink-0 snap-start bg-white p-8 sm:p-10 hover:bg-bg-base transition-colors group flex flex-col">
+      <article class="w-full sm:w-[calc(50%-1px)] lg:w-[calc(33.3333%-1px)] flex-none snap-start bg-white p-8 sm:p-10 hover:bg-bg-base transition-colors group flex flex-col">
         <div class="flex justify-between items-start mb-8">
           <div class="w-12 h-12 flex items-center justify-center bg-bg-subtle border border-border-strong rounded-sm text-text-main">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
