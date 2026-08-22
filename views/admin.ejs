@@ -110,7 +110,7 @@ tailwind.config = {
             <span class="text-xs text-gray-500 font-mono"><%= project.technologies.join(', ') %></span>
           </div>
           <div class="flex gap-2">
-            <button onclick="editProject('<%= project._id %>', '<%= project.title.replace(/'/g, '\\\'') %>', '<%= project.order %>', '<%= project.technologies.join(', ').replace(/'/g, '\\\'') %>', '<%= project.description.replace(/(\r\n|\n|\r)/gm, '\\n').replace(/'/g, '\\\'') %>', '<%= Buffer.from(JSON.stringify(project.images && project.images.length > 0 ? project.images : (project.image ? [project.image] : []))).toString('base64') %>', '<%= (project.githubUrl || '').replace(/'/g, '\\\'') %>', '<%= (project.liveUrl || '').replace(/'/g, '\\\'') %>')" class="text-blue-600 text-sm font-bold px-3 py-1 border border-blue-200 hover:bg-blue-50">Edit</button>
+            <button onclick="editProject('<%= project._id %>', '<%= project.title.replace(/'/g, '\\\'') %>', '<%= project.order %>', '<%= project.technologies.join(', ').replace(/'/g, '\\\'') %>', '<%= project.description.replace(/(\r\n|\n|\r)/gm, '\\n').replace(/'/g, '\\\'') %>', '<%= (project.image || '').replace(/'/g, '\\\'') %>', '<%= (project.githubUrl || '').replace(/'/g, '\\\'') %>', '<%= (project.liveUrl || '').replace(/'/g, '\\\'') %>')" class="text-blue-600 text-sm font-bold px-3 py-1 border border-blue-200 hover:bg-blue-50">Edit</button>
             <form action="/admin/api/projects" method="POST" class="inline">
               <input type="hidden" name="action" value="delete">
               <input type="hidden" name="id" value="<%= project._id %>">
@@ -151,10 +151,10 @@ tailwind.config = {
           </div>
         </div>
         <div>
-          <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Project Images (Upload Multiple)</label>
-          <input type="file" name="imageFiles" id="proj-image-file" accept="image/*" multiple class="w-full border p-2 text-sm">
-          <p class="text-xs text-gray-500 mt-1">Leave empty to keep existing images. Uploading new images will append to existing ones.</p>
-          <input type="hidden" name="existingImages" id="proj-image-hidden">
+          <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Project Image (Upload)</label>
+          <input type="file" name="imageFile" id="proj-image-file" accept="image/*" class="w-full border p-2 text-sm">
+          <p class="text-xs text-gray-500 mt-1">Leave empty to keep existing image when editing.</p>
+          <input type="hidden" name="image" id="proj-image-hidden">
         </div>
         <div>
           <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Description</label>
@@ -433,23 +433,14 @@ tailwind.config = {
       document.getElementById('tab-' + tabId).classList.add('active');
     }
 
-    function editProject(id, title, order, tech, desc, imagesBase64, githubUrl, liveUrl) {
+    function editProject(id, title, order, tech, desc, image, githubUrl, liveUrl) {
       document.getElementById('proj-action').value = 'update';
       document.getElementById('proj-id').value = id;
       document.getElementById('proj-title').value = title;
       document.getElementById('proj-order').value = order;
       document.getElementById('proj-tech').value = tech;
       document.getElementById('proj-desc').value = desc;
-      
-      try {
-        const decodedImages = atob(imagesBase64);
-        const imagesArray = JSON.parse(decodedImages);
-        // We can pass the JSON array string directly since the hidden input just needs the string
-        document.getElementById('proj-image-hidden').value = decodedImages;
-      } catch (e) {
-        document.getElementById('proj-image-hidden').value = '[]';
-      }
-      
+      document.getElementById('proj-image-hidden').value = image;
       document.getElementById('proj-image-file').value = '';
       document.getElementById('proj-github').value = githubUrl;
       document.getElementById('proj-live').value = liveUrl;
