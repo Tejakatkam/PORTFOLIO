@@ -213,6 +213,13 @@ app.post('/admin/api/projects', requireAuth, upload.array('imageFiles', 10), asy
         const contentBase64 = file.buffer.toString('base64');
         const finalPath = `/images/projects/${fileName}`;
         
+        const fs = require('fs');
+        const localPath = path.join(__dirname, filePath);
+        if (!fs.existsSync(path.dirname(localPath))) {
+          fs.mkdirSync(path.dirname(localPath), { recursive: true });
+        }
+        fs.writeFileSync(localPath, file.buffer);
+
         if (process.env.GITHUB_TOKEN) {
           try {
             await octokit.repos.createOrUpdateFileContents({
@@ -226,13 +233,6 @@ app.post('/admin/api/projects', requireAuth, upload.array('imageFiles', 10), asy
           } catch (gitErr) {
             console.error("GitHub API Error:", gitErr);
           }
-        } else {
-          const fs = require('fs');
-          const localPath = path.join(__dirname, filePath);
-          if (!fs.existsSync(path.dirname(localPath))) {
-            fs.mkdirSync(path.dirname(localPath), { recursive: true });
-          }
-          fs.writeFileSync(localPath, file.buffer);
         }
         data.images.push(finalPath);
       }
