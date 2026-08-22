@@ -169,7 +169,7 @@ tailwind.config = {
             <% if (projImages.length > 1) { %>
               <div class="flex w-full h-full transition-transform duration-1000 ease-in-out" id="carousel-<%= project._id %>">
                 <% projImages.forEach((img, i) => { %>
-                  <img src="<%= img %>" alt="<%= project.title %> screenshot <%= i+1 %>" class="w-full h-full object-cover shrink-0">
+                  <img src="<%= img %>" alt="<%= project.title %> screenshot <%= i+1 %>" class="w-full h-full object-cover shrink-0" onerror="this.closest('.mb-6').style.display='none'">
                 <% }) %>
               </div>
               <script>
@@ -185,7 +185,7 @@ tailwind.config = {
                 })();
               </script>
             <% } else { %>
-              <img src="<%= projImages[0] %>" alt="<%= project.title %> screenshot" class="w-full h-full object-cover">
+              <img src="<%= projImages[0] %>" alt="<%= project.title %> screenshot" class="w-full h-full object-cover" onerror="this.closest('.mb-6').style.display='none'">
             <% } %>
           </div>
         <% } %>
