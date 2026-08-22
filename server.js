@@ -217,10 +217,6 @@ app.post('/admin/api/profile', requireAuth, upload.single('resumeFile'), async (
     res.status(500).send("Error updating profile");
   }
 });
-
-// Utility for simple CRUD on arrays
-const handleCrud = (Model) => async (req, res) => {
-
 app.post('/admin/api/projects', requireAuth, upload.single('imageFile'), async (req, res) => {
   try {
     const { action, id, ...data } = req.body;
