@@ -123,7 +123,7 @@ tailwind.config = {
 
       <!-- Add / Edit Form -->
       <h3 id="proj-form-title" class="text-lg font-bold mb-4 border-t pt-8">Add New Project</h3>
-      <form action="/admin/api/projects" method="POST" class="bg-white p-6 border border-gray-200 shadow-sm space-y-4">
+      <form action="/admin/api/projects" method="POST" enctype="multipart/form-data" class="bg-white p-6 border border-gray-200 shadow-sm space-y-4">
         <input type="hidden" name="action" id="proj-action" value="create">
         <input type="hidden" name="id" id="proj-id" value="">
         <div class="grid grid-cols-2 gap-4">
@@ -151,8 +151,10 @@ tailwind.config = {
           </div>
         </div>
         <div>
-          <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Image URL (Optional)</label>
-          <input type="text" name="image" id="proj-image" placeholder="https://..." class="w-full border p-2 text-sm">
+          <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Project Image (Upload)</label>
+          <input type="file" name="imageFile" id="proj-image-file" accept="image/*" class="w-full border p-2 text-sm">
+          <p class="text-xs text-gray-500 mt-1">Leave empty to keep existing image when editing.</p>
+          <input type="hidden" name="image" id="proj-image-hidden">
         </div>
         <div>
           <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Description</label>
@@ -438,7 +440,8 @@ tailwind.config = {
       document.getElementById('proj-order').value = order;
       document.getElementById('proj-tech').value = tech;
       document.getElementById('proj-desc').value = desc;
-      document.getElementById('proj-image').value = image;
+      document.getElementById('proj-image-hidden').value = image;
+      document.getElementById('proj-image-file').value = '';
       document.getElementById('proj-github').value = githubUrl;
       document.getElementById('proj-live').value = liveUrl;
       document.getElementById('proj-form-title').innerText = 'Edit Project';
@@ -452,7 +455,8 @@ tailwind.config = {
       document.getElementById('proj-order').value = '10';
       document.getElementById('proj-tech').value = '';
       document.getElementById('proj-desc').value = '';
-      document.getElementById('proj-image').value = '';
+      document.getElementById('proj-image-hidden').value = '';
+      document.getElementById('proj-image-file').value = '';
       document.getElementById('proj-github').value = '';
       document.getElementById('proj-live').value = '';
       document.getElementById('proj-form-title').innerText = 'Add New Project';

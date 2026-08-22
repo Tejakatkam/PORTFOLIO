@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const path = require('path');
+const multer = require('multer');
+const { Octokit } = require('@octokit/rest');
 
 const models = require('./models');
 
@@ -180,7 +182,59 @@ const handleCrud = (Model) => async (req, res) => {
   res.redirect('/admin');
 };
 
-app.post('/admin/api/projects', requireAuth, handleCrud(models.Project));
+const upload = multer({ storage: multer.memoryStorage() });
+const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+const GITHUB_OWNER = process.env.GITHUB_OWNER || 'Tejakatkam';
+const GITHUB_REPO = process.env.GITHUB_REPO || 'PORTFOLIO';
+
+app.post('/admin/api/projects', requireAuth, upload.single('imageFile'), async (req, res) => {
+  try {
+    const { action, id, ...data } = req.body;
+    
+    if (data.technologies && typeof data.technologies === 'string') {
+      data.technologies = data.technologies.split(',').map(s => s.trim());
+    }
+
+    if (req.file) {
+      const fileName = `${Date.now()}-${req.file.originalname.replace(/[^a-zA-Z0-9.-]/g, '')}`;
+      const filePath = `public/images/projects/${fileName}`;
+      const contentBase64 = req.file.buffer.toString('base64');
+      
+      if (process.env.GITHUB_TOKEN) {
+        try {
+          await octokit.repos.createOrUpdateFileContents({
+            owner: GITHUB_OWNER,
+            repo: GITHUB_REPO,
+            path: filePath,
+            message: `Add project image: ${fileName}`,
+            content: contentBase64,
+            branch: 'main'
+          });
+          data.image = `/images/projects/${fileName}`;
+        } catch (gitErr) {
+          console.error("GitHub API Error:", gitErr);
+        }
+      } else {
+        const fs = require('fs');
+        const localPath = path.join(__dirname, filePath);
+        if (!fs.existsSync(path.dirname(localPath))) {
+          fs.mkdirSync(path.dirname(localPath), { recursive: true });
+        }
+        fs.writeFileSync(localPath, req.file.buffer);
+        data.image = `/images/projects/${fileName}`;
+      }
+    }
+
+    if (action === 'create') await models.Project.create(data);
+    else if (action === 'update') await models.Project.findByIdAndUpdate(id, data);
+    else if (action === 'delete') await models.Project.findByIdAndDelete(id);
+    
+    res.redirect('/admin');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error updating project");
+  }
+});
 app.post('/admin/api/certifications', requireAuth, handleCrud(models.Certification));
 app.post('/admin/api/coding-profiles', requireAuth, handleCrud(models.CodingProfile));
 app.post('/admin/api/achievements', requireAuth, handleCrud(models.Achievement));
