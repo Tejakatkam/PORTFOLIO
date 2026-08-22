@@ -21,6 +21,7 @@ const ProjectSchema = new mongoose.Schema({
   githubUrl: String,
   liveUrl: String,
   image: { type: String, default: '' },
+  images: { type: [String], default: [] },
   order: { type: Number, default: 0 }
 });
 

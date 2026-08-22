@@ -156,9 +156,37 @@ tailwind.config = {
           <span class="font-mono text-xs font-bold tracking-widest text-accent uppercase"><%= String(index + 1).padStart(2, '0') %></span>
         </div>
         <h3 class="font-display text-xl font-bold text-text-main mb-4 group-hover:text-accent transition-colors"><%= project.title %></h3>
-        <% if (project.image) { %>
-          <div class="mb-6 border border-border-strong overflow-hidden max-h-40">
-            <img src="<%= project.image %>" alt="<%= project.title %> screenshot" class="w-full object-cover transition-all duration-300">
+        <% 
+          let projImages = [];
+          if (project.images && project.images.length > 0) {
+            projImages = project.images;
+          } else if (project.image) {
+            projImages = [project.image];
+          }
+        %>
+        <% if (projImages.length > 0) { %>
+          <div class="mb-6 border border-border-strong overflow-hidden h-40 relative">
+            <% if (projImages.length > 1) { %>
+              <div class="flex w-full h-full transition-transform duration-1000 ease-in-out" id="carousel-<%= project._id %>">
+                <% projImages.forEach((img, i) => { %>
+                  <img src="<%= img %>" alt="<%= project.title %> screenshot <%= i+1 %>" class="w-full h-full object-cover shrink-0">
+                <% }) %>
+              </div>
+              <script>
+                (function() {
+                  const carousel = document.getElementById('carousel-<%= project._id %>');
+                  if(!carousel) return;
+                  const count = <%= projImages.length %>;
+                  let idx = 0;
+                  setInterval(() => {
+                    idx = (idx + 1) % count;
+                    carousel.style.transform = `translateX(-${idx * 100}%)`;
+                  }, 3000);
+                })();
+              </script>
+            <% } else { %>
+              <img src="<%= projImages[0] %>" alt="<%= project.title %> screenshot" class="w-full h-full object-cover">
+            <% } %>
           </div>
         <% } %>
         <p class="text-text-muted text-sm leading-relaxed mb-8">

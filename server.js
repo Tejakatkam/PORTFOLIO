@@ -187,7 +187,7 @@ const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 const GITHUB_OWNER = process.env.GITHUB_OWNER || 'Tejakatkam';
 const GITHUB_REPO = process.env.GITHUB_REPO || 'PORTFOLIO';
 
-app.post('/admin/api/projects', requireAuth, upload.single('imageFile'), async (req, res) => {
+app.post('/admin/api/projects', requireAuth, upload.array('imageFiles', 10), async (req, res) => {
   try {
     const { action, id, ...data } = req.body;
     
@@ -195,34 +195,52 @@ app.post('/admin/api/projects', requireAuth, upload.single('imageFile'), async (
       data.technologies = data.technologies.split(',').map(s => s.trim());
     }
 
-    if (req.file) {
-      const fileName = `${Date.now()}-${req.file.originalname.replace(/[^a-zA-Z0-9.-]/g, '')}`;
-      const filePath = `public/images/projects/${fileName}`;
-      const contentBase64 = req.file.buffer.toString('base64');
-      
-      if (process.env.GITHUB_TOKEN) {
-        try {
-          await octokit.repos.createOrUpdateFileContents({
-            owner: GITHUB_OWNER,
-            repo: GITHUB_REPO,
-            path: filePath,
-            message: `Add project image: ${fileName}`,
-            content: contentBase64,
-            branch: 'main'
-          });
-          data.image = `/images/projects/${fileName}`;
-        } catch (gitErr) {
-          console.error("GitHub API Error:", gitErr);
-        }
-      } else {
-        const fs = require('fs');
-        const localPath = path.join(__dirname, filePath);
-        if (!fs.existsSync(path.dirname(localPath))) {
-          fs.mkdirSync(path.dirname(localPath), { recursive: true });
-        }
-        fs.writeFileSync(localPath, req.file.buffer);
-        data.image = `/images/projects/${fileName}`;
+    if (data.existingImages) {
+      data.images = typeof data.existingImages === 'string' ? [data.existingImages] : data.existingImages;
+    } else {
+      data.images = [];
+      // Fallback: if editing an old project that only had `image`
+      if (data.image && action === 'update') {
+        data.images = [data.image];
       }
+    }
+
+    if (req.files && req.files.length > 0) {
+      // If uploading new files, we can optionally clear old ones, but appending is safer.
+      for (const file of req.files) {
+        const fileName = `${Date.now()}-${file.originalname.replace(/[^a-zA-Z0-9.-]/g, '')}`;
+        const filePath = `public/images/projects/${fileName}`;
+        const contentBase64 = file.buffer.toString('base64');
+        const finalPath = `/images/projects/${fileName}`;
+        
+        if (process.env.GITHUB_TOKEN) {
+          try {
+            await octokit.repos.createOrUpdateFileContents({
+              owner: GITHUB_OWNER,
+              repo: GITHUB_REPO,
+              path: filePath,
+              message: `Add project image: ${fileName}`,
+              content: contentBase64,
+              branch: 'main'
+            });
+          } catch (gitErr) {
+            console.error("GitHub API Error:", gitErr);
+          }
+        } else {
+          const fs = require('fs');
+          const localPath = path.join(__dirname, filePath);
+          if (!fs.existsSync(path.dirname(localPath))) {
+            fs.mkdirSync(path.dirname(localPath), { recursive: true });
+          }
+          fs.writeFileSync(localPath, file.buffer);
+        }
+        data.images.push(finalPath);
+      }
+    }
+
+    // Backward compatibility for old property
+    if (data.images && data.images.length > 0) {
+      data.image = data.images[0];
     }
 
     if (action === 'create') await models.Project.create(data);
