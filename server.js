@@ -162,20 +162,12 @@ app.get('/admin', requireAuth, async (req, res) => {
   }
 });
 
-// Admin API routes for updating
-app.post('/admin/api/profile', requireAuth, async (req, res) => {
-  await models.Profile.findOneAndUpdate({}, req.body, { upsert: true });
-  res.redirect('/admin');
-});
-
 // Utility for simple CRUD on arrays
 const handleCrud = (Model) => async (req, res) => {
   const { action, id, ...data } = req.body;
-  
   if (data.items && typeof data.items === 'string') {
     data.items = data.items.split(',').map(s => s.trim());
   }
-
   if (action === 'create') await Model.create(data);
   else if (action === 'update') await Model.findByIdAndUpdate(id, data);
   else if (action === 'delete') await Model.findByIdAndDelete(id);
@@ -186,6 +178,48 @@ const upload = multer({ storage: multer.memoryStorage() });
 const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 const GITHUB_OWNER = process.env.GITHUB_OWNER || 'Tejakatkam';
 const GITHUB_REPO = process.env.GITHUB_REPO || 'PORTFOLIO';
+
+// Admin API routes for updating
+app.post('/admin/api/profile', requireAuth, upload.single('resumeFile'), async (req, res) => {
+  try {
+    const data = req.body;
+    
+    if (req.file) {
+      const fileName = `resume-${Date.now()}.pdf`;
+      const filePath = `public/${fileName}`;
+      const contentBase64 = req.file.buffer.toString('base64');
+      
+      const fs = require('fs');
+      const localPath = path.join(__dirname, filePath);
+      fs.writeFileSync(localPath, req.file.buffer);
+      
+      if (process.env.GITHUB_TOKEN) {
+        try {
+          await octokit.repos.createOrUpdateFileContents({
+            owner: GITHUB_OWNER,
+            repo: GITHUB_REPO,
+            path: filePath,
+            message: `Update resume to ${fileName}`,
+            content: contentBase64,
+            branch: 'main'
+          });
+        } catch (gitErr) {
+          console.error("GitHub API Error:", gitErr);
+        }
+      }
+      data.resumeLink = `/${fileName}`;
+    }
+
+    await models.Profile.findOneAndUpdate({}, data, { upsert: true });
+    res.redirect('/admin');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error updating profile");
+  }
+});
+
+// Utility for simple CRUD on arrays
+const handleCrud = (Model) => async (req, res) => {
 
 app.post('/admin/api/projects', requireAuth, upload.single('imageFile'), async (req, res) => {
   try {

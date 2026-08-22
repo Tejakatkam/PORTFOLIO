@@ -60,12 +60,20 @@ tailwind.config = {
       <span><%= profile.name %></span>
     </a>
     <nav class="hidden md:flex items-center gap-6 text-sm font-semibold text-text-muted">
+      <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="hover:text-text-main transition-colors cursor-pointer">Home</button>
       <a href="#work" class="hover:text-text-main transition-colors">Projects</a>
       <a href="#coding" class="hover:text-text-main transition-colors">Profiles</a>
       <a href="#about" class="hover:text-text-main transition-colors">About</a>
       <a href="#contact" class="hover:text-text-main transition-colors">Contact</a>
     </nav>
-    <a href="#contact" class="inline-flex h-9 items-center justify-center bg-accent text-white px-4 text-sm font-semibold rounded-sm hover:bg-accent-dark transition-colors">Connect</a>
+    <div class="hidden md:flex items-center gap-3">
+      <a href="<%= profile.resumeLink && profile.resumeLink !== '#' ? profile.resumeLink : '/resume.pdf' %>" download="Teja_Katkam_Resume.pdf" class="inline-flex h-9 items-center justify-center bg-accent text-white px-4 text-sm font-semibold rounded-sm hover:bg-accent-dark transition-colors">
+        Resume
+      </a>
+      <a href="#contact" class="inline-flex h-9 items-center justify-center bg-accent text-white px-4 text-sm font-semibold rounded-sm hover:bg-accent-dark transition-colors">
+        Connect
+      </a>
+    </div>
   </div>
 </header>
 

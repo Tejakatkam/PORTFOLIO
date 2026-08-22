@@ -51,7 +51,7 @@ tailwind.config = {
     <!-- Profile Tab -->
     <section id="content-profile" class="tab-content active max-w-3xl">
       <h2 class="text-2xl font-bold mb-6">Profile Settings</h2>
-      <form action="/admin/api/profile" method="POST" class="bg-white p-6 border border-gray-200 shadow-sm space-y-4">
+      <form action="/admin/api/profile" method="POST" enctype="multipart/form-data" class="bg-white p-6 border border-gray-200 shadow-sm space-y-4">
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Name</label>
@@ -93,6 +93,11 @@ tailwind.config = {
             <label class="block text-xs font-bold uppercase text-gray-600 mb-1">GitHub</label>
             <input type="text" name="github" value="<%= profile.github %>" class="w-full border p-2 text-sm">
           </div>
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase text-gray-600 mb-1">Resume (PDF Upload)</label>
+          <input type="file" name="resumeFile" accept="application/pdf" class="w-full border p-2 text-sm">
+          <p class="text-xs text-gray-500 mt-1">Leave empty to keep the existing resume.</p>
         </div>
         <button type="submit" class="bg-gray-900 text-white px-6 py-2 text-sm font-bold uppercase tracking-wider mt-4">Save Profile</button>
       </form>
