@@ -74,6 +74,19 @@ tailwind.config = {
     background-image: linear-gradient(to right, var(--grid-color) 1px, transparent 1px), linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
     background-size: 40px 40px;
   }
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 5px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+  }
 </style>
 </head>
 
@@ -381,7 +394,7 @@ tailwind.config = {
 
       <div class="mt-12">
         <h3 class="text-sm font-bold uppercase tracking-wider text-text-main mb-4 border-b border-border-strong pb-2">Certifications</h3>
-        <ul class="space-y-4">
+        <ul class="space-y-4 max-h-[320px] overflow-y-auto pr-2 custom-scrollbar">
           <% certifications.forEach(cert => { %>
           <li class="flex justify-between items-start">
             <div>
@@ -400,7 +413,7 @@ tailwind.config = {
     <!-- About Content -->
     <div>
       <div class="border border-border-strong bg-bg-raised p-8 sm:p-10 h-full flex flex-col transition-colors duration-200">
-        <svg class="w-8 h-8 text-accent mb-6" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <svg class="w-8 h-8 text-accent mb-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
 
         <h3 class="font-display text-2xl font-bold text-text-main mb-6">Background & Achievements</h3>
         <p class="text-text-muted leading-relaxed mb-6 whitespace-pre-line"><%= profile.about %></p>
@@ -408,7 +421,7 @@ tailwind.config = {
         <h4 class="font-bold text-sm uppercase tracking-wider text-text-main mb-3">Key Achievements</h4>
         <ul class="text-sm text-text-muted space-y-3 mb-10">
           <% achievements.forEach(ach => { %>
-          <li class="flex gap-2"><svg class="w-4 h-4 text-accent shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> <span><strong><%= ach.title %>:</strong> <%= ach.description %></span></li>
+          <li class="flex gap-2"><svg class="w-5 h-5 text-accent shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> <span><strong><%= ach.title %>:</strong> <%= ach.description %></span></li>
           <% }) %>
         </ul>
         
@@ -416,7 +429,7 @@ tailwind.config = {
           <p class="font-mono text-[10px] font-bold tracking-widest text-text-main uppercase mb-2">Education Status</p>
           <% education.forEach(edu => { %>
           <div class="flex items-center gap-3 mt-3">
-            <svg class="w-5 h-5 text-emerald shrink-0" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <svg class="w-5 h-5 text-emerald shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             <div class="flex flex-col sm:flex-row sm:items-center justify-between w-full gap-1 sm:gap-2">
               <div>
                 <span class="text-sm font-semibold text-text-main"><%= edu.degree %></span>
