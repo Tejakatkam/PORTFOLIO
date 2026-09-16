@@ -121,6 +121,27 @@ app.get('/', async (req, res) => {
   }
 });
 
+app.get('/resume.pdf', async (req, res) => {
+  try {
+    const profile = await models.Profile.findOne();
+    if (profile && profile.resumeData && profile.resumeData.length > 0) {
+      res.set('Content-Type', profile.resumeMimeType || 'application/pdf');
+      res.set('Content-Disposition', 'inline; filename="Teja_Katkam_Resume.pdf"');
+      return res.send(profile.resumeData);
+    }
+    const localFallback = path.join(__dirname, 'public/resume.pdf');
+    if (fs.existsSync(localFallback)) {
+      res.set('Content-Type', 'application/pdf');
+      res.set('Content-Disposition', 'inline; filename="Teja_Katkam_Resume.pdf"');
+      return res.sendFile(localFallback);
+    }
+    res.status(404).send('Resume not found');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error loading resume');
+  }
+});
+
 // --- Admin Auth Routes ---
 app.get('/admin/login', (req, res) => {
   if (req.session.isAuthenticated) return res.redirect('/admin');
@@ -185,29 +206,9 @@ app.post('/admin/api/profile', requireAuth, upload.single('resumeFile'), async (
     const data = req.body;
     
     if (req.file) {
-      const fileName = `resume-${Date.now()}.pdf`;
-      const filePath = `public/${fileName}`;
-      const contentBase64 = req.file.buffer.toString('base64');
-      
-      const fs = require('fs');
-      const localPath = path.join(__dirname, filePath);
-      fs.writeFileSync(localPath, req.file.buffer);
-      
-      if (process.env.GITHUB_TOKEN) {
-        try {
-          await octokit.repos.createOrUpdateFileContents({
-            owner: GITHUB_OWNER,
-            repo: GITHUB_REPO,
-            path: filePath,
-            message: `Update resume to ${fileName}`,
-            content: contentBase64,
-            branch: 'main'
-          });
-        } catch (gitErr) {
-          console.error("GitHub API Error:", gitErr);
-        }
-      }
-      data.resumeLink = `/${fileName}`;
+      data.resumeData = req.file.buffer;
+      data.resumeMimeType = req.file.mimetype || 'application/pdf';
+      data.resumeLink = '/resume.pdf';
     }
 
     await models.Profile.findOneAndUpdate({}, data, { upsert: true });
@@ -217,6 +218,7 @@ app.post('/admin/api/profile', requireAuth, upload.single('resumeFile'), async (
     res.status(500).send("Error updating profile");
   }
 });
+
 app.post('/admin/api/projects', requireAuth, upload.single('imageFile'), async (req, res) => {
   try {
     const { action, id, ...data } = req.body;
@@ -226,32 +228,14 @@ app.post('/admin/api/projects', requireAuth, upload.single('imageFile'), async (
     }
 
     if (req.file) {
-      const fileName = `${Date.now()}-${req.file.originalname.replace(/[^a-zA-Z0-9.-]/g, '')}`;
-      const filePath = `public/images/projects/${fileName}`;
-      const contentBase64 = req.file.buffer.toString('base64');
-      
-      const fs = require('fs');
-      const localPath = path.join(__dirname, filePath);
-      if (!fs.existsSync(path.dirname(localPath))) {
-        fs.mkdirSync(path.dirname(localPath), { recursive: true });
+      const mimeType = req.file.mimetype || 'image/png';
+      const base64String = req.file.buffer.toString('base64');
+      data.image = `data:${mimeType};base64,${base64String}`;
+    } else if (action === 'update') {
+      // If no new image was selected during update, do not overwrite the existing image
+      if (!data.image) {
+        delete data.image;
       }
-      fs.writeFileSync(localPath, req.file.buffer);
-      
-      if (process.env.GITHUB_TOKEN) {
-        try {
-          await octokit.repos.createOrUpdateFileContents({
-            owner: GITHUB_OWNER,
-            repo: GITHUB_REPO,
-            path: filePath,
-            message: `Add project image: ${fileName}`,
-            content: contentBase64,
-            branch: 'main'
-          });
-        } catch (gitErr) {
-          console.error("GitHub API Error:", gitErr);
-        }
-      }
-      data.image = `/images/projects/${fileName}`;
     }
 
     if (action === 'create') await models.Project.create(data);
@@ -271,7 +255,24 @@ app.post('/admin/api/skills', requireAuth, handleCrud(models.Skill));
 app.post('/admin/api/education', requireAuth, handleCrud(models.Education));
 
 // Add script to run server
-connectDB().then(() => {
+connectDB().then(async () => {
+  try {
+    // Seed default resume from local repository into MongoDB Atlas if not present
+    const profile = await models.Profile.findOne();
+    if (profile && (!profile.resumeData || profile.resumeData.length === 0)) {
+      const defaultPdfPath = path.join(__dirname, 'public/resume.pdf');
+      if (fs.existsSync(defaultPdfPath)) {
+        profile.resumeData = fs.readFileSync(defaultPdfPath);
+        profile.resumeMimeType = 'application/pdf';
+        profile.resumeLink = '/resume.pdf';
+        await profile.save();
+        console.log('Default resume initialized in MongoDB Atlas.');
+      }
+    }
+  } catch (seedErr) {
+    console.error('Error verifying resume seed in database:', seedErr);
+  }
+
   app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
   });
