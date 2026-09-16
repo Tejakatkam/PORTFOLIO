@@ -225,7 +225,7 @@ app.post('/admin/api/profile', requireAuth, upload.single('resumeFile'), async (
   }
 });
 
-app.post('/admin/api/projects', requireAuth, upload.single('imageFile'), async (req, res) => {
+app.post('/admin/api/projects', requireAuth, upload.fields([{ name: 'imageFiles', maxCount: 10 }, { name: 'imageFile', maxCount: 1 }]), async (req, res) => {
   try {
     const { action, id, ...data } = req.body;
     
@@ -233,15 +233,26 @@ app.post('/admin/api/projects', requireAuth, upload.single('imageFile'), async (
       data.technologies = data.technologies.split(',').map(s => s.trim());
     }
 
-    if (req.file) {
-      const mimeType = req.file.mimetype || 'image/png';
-      const base64String = req.file.buffer.toString('base64');
-      data.image = `data:${mimeType};base64,${base64String}`;
+    const uploadedFiles = [];
+    if (req.files) {
+      if (req.files.imageFiles) uploadedFiles.push(...req.files.imageFiles);
+      if (req.files.imageFile) uploadedFiles.push(...req.files.imageFile);
+    } else if (req.file) {
+      uploadedFiles.push(req.file);
+    }
+
+    if (uploadedFiles.length > 0) {
+      const base64Images = uploadedFiles.map(file => {
+        const mimeType = file.mimetype || 'image/png';
+        const base64String = file.buffer.toString('base64');
+        return `data:${mimeType};base64,${base64String}`;
+      });
+      data.images = base64Images;
+      data.image = base64Images[0];
     } else if (action === 'update') {
-      // If no new image was selected during update, do not overwrite the existing image
-      if (!data.image) {
-        delete data.image;
-      }
+      // If no new image was selected during update, do not overwrite the existing images
+      delete data.image;
+      delete data.images;
     }
 
     if (action === 'create') await models.Project.create(data);

@@ -281,9 +281,30 @@ tailwind.config = {
           <span class="font-mono text-xs font-bold tracking-widest text-accent uppercase"><%= String(index + 1).padStart(2, '0') %></span>
         </div>
         <h3 class="font-display text-xl font-bold text-text-main mb-4 group-hover:text-accent transition-colors"><%= project.title %></h3>
-        <% if (project.image) { %>
-          <div class="mb-6 border border-border-strong overflow-hidden h-40 relative">
-            <img src="<%= project.image %>" alt="<%= project.title %> screenshot" class="w-full h-full object-cover shrink-0" onerror="this.closest('.mb-6').style.display='none'">
+        <% 
+          const projImages = (project.images && project.images.length > 0) 
+            ? project.images 
+            : (project.image ? [project.image] : []); 
+        %>
+        <% if (projImages.length > 0) { %>
+          <div class="mb-6 border border-border-strong overflow-hidden h-44 relative bg-bg-subtle rounded-sm">
+            <% if (projImages.length === 1) { %>
+              <img src="<%= projImages[0] %>" alt="<%= project.title %> screenshot" class="w-full h-full object-cover shrink-0" onerror="this.closest('.mb-6').style.display='none'">
+            <% } else { %>
+              <div class="project-carousel relative w-full h-full" data-interval="3500">
+                <div class="carousel-track flex w-full h-full transition-transform duration-700 ease-in-out">
+                  <% projImages.forEach((imgSrc, imgIdx) => { %>
+                    <div class="w-full h-full shrink-0">
+                      <img src="<%= imgSrc %>" alt="<%= project.title %> screenshot <%= imgIdx + 1 %>" class="w-full h-full object-cover">
+                    </div>
+                  <% }) %>
+                </div>
+                <!-- Slide indicator counter badge -->
+                <div class="absolute bottom-2 right-2 bg-black/75 backdrop-blur-xs text-white text-[10px] font-mono px-2 py-0.5 rounded-xs pointer-events-none flex items-center gap-0.5 border border-white/10 shadow-sm">
+                  <span class="carousel-counter">1</span>/<%= projImages.length %>
+                </div>
+              </div>
+            <% } %>
           </div>
         <% } %>
         <p class="text-text-muted text-sm leading-relaxed mb-8">
@@ -591,8 +612,40 @@ tailwind.config = {
     }
   }
 
+  function initProjectCarousels() {
+    document.querySelectorAll('.project-carousel').forEach(carousel => {
+      const track = carousel.querySelector('.carousel-track');
+      const counter = carousel.querySelector('.carousel-counter');
+      if (!track) return;
+      const slides = track.children;
+      if (slides.length <= 1) return;
+      
+      let current = 0;
+      const total = slides.length;
+      const intervalTime = parseInt(carousel.getAttribute('data-interval') || '3500', 10);
+      
+      let timer = setInterval(() => {
+        current = (current + 1) % total;
+        track.style.transform = `translateX(-${current * 100}%)`;
+        if (counter) counter.innerText = current + 1;
+      }, intervalTime);
+
+      // Pause slide animation on mouse hover
+      carousel.addEventListener('mouseenter', () => clearInterval(timer));
+      carousel.addEventListener('mouseleave', () => {
+        clearInterval(timer);
+        timer = setInterval(() => {
+          current = (current + 1) % total;
+          track.style.transform = `translateX(-${current * 100}%)`;
+          if (counter) counter.innerText = current + 1;
+        }, intervalTime);
+      });
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     updateThemeIcons();
+    initProjectCarousels();
     setTimeout(type, 1000);
   });
 </script>
