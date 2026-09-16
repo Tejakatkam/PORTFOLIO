@@ -291,8 +291,8 @@ tailwind.config = {
             <% if (projImages.length === 1) { %>
               <img src="<%= projImages[0] %>" alt="<%= project.title %> screenshot" class="w-full h-full object-cover shrink-0" onerror="this.closest('.mb-6').style.display='none'">
             <% } else { %>
-              <div class="project-carousel relative w-full h-full" data-interval="3500">
-                <div class="carousel-track flex w-full h-full transition-transform duration-700 ease-in-out">
+              <div class="project-carousel relative w-full h-full" data-interval="1800">
+                <div class="carousel-track flex w-full h-full transition-transform duration-500 ease-in-out">
                   <% projImages.forEach((imgSrc, imgIdx) => { %>
                     <div class="w-full h-full shrink-0">
                       <img src="<%= imgSrc %>" alt="<%= project.title %> screenshot <%= imgIdx + 1 %>" class="w-full h-full object-cover">
@@ -622,7 +622,7 @@ tailwind.config = {
       
       let current = 0;
       const total = slides.length;
-      const intervalTime = parseInt(carousel.getAttribute('data-interval') || '3500', 10);
+      const intervalTime = parseInt(carousel.getAttribute('data-interval') || '1800', 10);
       
       let timer = setInterval(() => {
         current = (current + 1) % total;

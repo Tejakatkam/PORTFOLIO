@@ -286,8 +286,12 @@ connectDB().then(async () => {
         console.log('Default resume initialized in MongoDB Atlas.');
       }
     }
+
+    // Reset existing project images from database as requested
+    await models.Project.updateMany({}, { $set: { image: '', images: [] } });
+    console.log('Project images reset complete.');
   } catch (seedErr) {
-    console.error('Error verifying resume seed in database:', seedErr);
+    console.error('Error in startup initialization:', seedErr);
   }
 
   app.listen(PORT, () => {
