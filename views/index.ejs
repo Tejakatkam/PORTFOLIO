@@ -273,64 +273,86 @@ tailwind.config = {
 
     <div id="projects-slider" class="flex overflow-x-auto snap-x gap-px bg-border-strong border border-border-strong pb-4 scrollbar-none" style="scrollbar-width: none; -ms-overflow-style: none;">
       <% projects.forEach((project, index) => { %>
-      <article class="w-full sm:w-[calc(50%-1px)] lg:w-[calc(33.3333%-1px)] flex-none snap-start bg-bg-raised p-8 sm:p-10 hover:bg-bg-subtle transition-colors group flex flex-col">
-        <div class="flex justify-between items-start mb-8">
-          <div class="w-12 h-12 flex items-center justify-center bg-bg-subtle border border-border-strong rounded-sm text-text-main">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-          </div>
-          <span class="font-mono text-xs font-bold tracking-widest text-accent uppercase"><%= String(index + 1).padStart(2, '0') %></span>
-        </div>
-        <h3 class="font-display text-xl font-bold text-text-main mb-4 group-hover:text-accent transition-colors"><%= project.title %></h3>
         <% 
           const projImages = (project.images && project.images.length > 0) 
             ? project.images 
             : (project.image ? [project.image] : []); 
+          const hasImages = projImages.length > 0;
         %>
-        <% if (projImages.length > 0) { %>
-          <div class="mb-6 border border-border-strong overflow-hidden h-44 relative bg-bg-subtle rounded-sm">
-            <% if (projImages.length === 1) { %>
-              <img src="<%= projImages[0] %>" alt="<%= project.title %> screenshot" class="w-full h-full object-cover shrink-0" onerror="this.closest('.mb-6').style.display='none'">
-            <% } else { %>
-              <div class="project-carousel relative w-full h-full" data-interval="1800">
-                <div class="carousel-track flex w-full h-full transition-transform duration-500 ease-in-out">
-                  <% projImages.forEach((imgSrc, imgIdx) => { %>
-                    <div class="w-full h-full shrink-0">
-                      <img src="<%= imgSrc %>" alt="<%= project.title %> screenshot <%= imgIdx + 1 %>" class="w-full h-full object-cover">
-                    </div>
-                  <% }) %>
-                </div>
-                <!-- Slide indicator counter badge -->
-                <div class="absolute bottom-2 right-2 bg-black/75 backdrop-blur-xs text-white text-[10px] font-mono px-2 py-0.5 rounded-xs pointer-events-none flex items-center gap-0.5 border border-white/10 shadow-sm">
-                  <span class="carousel-counter">1</span>/<%= projImages.length %>
-                </div>
-              </div>
-            <% } %>
+      <article class="w-full sm:w-[calc(50%-1px)] lg:w-[calc(33.3333%-1px)] flex-none snap-start bg-bg-raised p-6 sm:p-8 hover:bg-bg-subtle transition-colors group flex flex-col justify-between h-[520px] sm:h-[550px]">
+        <div>
+          <div class="flex justify-between items-start mb-3">
+            <div class="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center bg-bg-subtle border border-border-strong rounded-sm text-text-main">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+            </div>
+            <span class="font-mono text-xs font-bold tracking-widest text-accent uppercase"><%= String(index + 1).padStart(2, '0') %></span>
           </div>
-        <% } %>
-        <p class="text-text-muted text-sm leading-relaxed mb-8">
-          <%= project.description %>
-        </p>
-        <div class="pt-6 border-t border-border-strong flex flex-wrap gap-2 mt-auto">
-          <% project.technologies.forEach(tech => { %>
-          <span class="px-2 py-1 bg-bg-subtle border border-border-strong text-xs font-mono font-medium text-text-main"><%= tech %></span>
-          <% }) %>
-        </div>
-        <% if (project.githubUrl || project.liveUrl) { %>
-        <div class="pt-6 mt-6 border-t border-border-strong flex gap-4">
-          <% if (project.githubUrl) { %>
-            <a href="<%= project.githubUrl %>" target="_blank" class="text-sm font-bold text-text-main hover:text-accent flex items-center gap-2">
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-              GitHub
-            </a>
+
+          <h3 onclick="openProjectModal(<%= index %>)" class="font-display text-lg sm:text-xl font-bold text-text-main mb-3 group-hover:text-accent transition-colors line-clamp-1 cursor-pointer" title="<%= project.title %>">
+            <%= project.title %>
+          </h3>
+
+          <% if (hasImages) { %>
+            <div onclick="openProjectModal(<%= index %>)" class="mb-3 border border-border-strong overflow-hidden h-44 sm:h-48 relative bg-bg-subtle rounded-sm cursor-pointer group/img shadow-inner" title="Click to view full project details">
+              <% if (projImages.length === 1) { %>
+                <img src="<%= projImages[0] %>" alt="<%= project.title %> screenshot" class="w-full h-full object-cover object-top shrink-0 group-hover/img:scale-105 transition-transform duration-300" onerror="this.closest('.mb-3').style.display='none'">
+              <% } else { %>
+                <div class="project-carousel relative w-full h-full" data-interval="1800">
+                  <div class="carousel-track flex w-full h-full transition-transform duration-500 ease-in-out">
+                    <% projImages.forEach((imgSrc, imgIdx) => { %>
+                      <div class="w-full h-full shrink-0">
+                        <img src="<%= imgSrc %>" alt="<%= project.title %> screenshot <%= imgIdx + 1 %>" class="w-full h-full object-cover object-top">
+                      </div>
+                    <% }) %>
+                  </div>
+                  <!-- Slide indicator counter badge -->
+                  <div class="absolute bottom-2 right-2 bg-black/75 backdrop-blur-xs text-white text-[10px] font-mono px-2 py-0.5 rounded-xs pointer-events-none flex items-center gap-0.5 border border-white/10 shadow-sm">
+                    <span class="carousel-counter">1</span>/<%= projImages.length %>
+                  </div>
+                </div>
+              <% } %>
+            </div>
           <% } %>
-          <% if (project.liveUrl) { %>
-            <a href="<%= project.liveUrl %>" target="_blank" class="text-sm font-bold text-text-main hover:text-accent flex items-center gap-2">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-              Live Demo
-            </a>
-          <% } %>
+
+          <div class="mb-3">
+            <p class="text-text-muted text-xs sm:text-sm leading-relaxed <%= hasImages ? 'line-clamp-2 sm:line-clamp-3' : 'line-clamp-4 sm:line-clamp-5' %>">
+              <%= project.description %>
+            </p>
+            <button type="button" onclick="openProjectModal(<%= index %>)" class="text-accent hover:text-accent-dark font-mono text-xs font-semibold inline-flex items-center gap-1 mt-1 transition-colors cursor-pointer focus:outline-none">
+              Read more <span aria-hidden="true">&rarr;</span>
+            </button>
+          </div>
         </div>
-        <% } %>
+
+        <div>
+          <div class="pt-3 border-t border-border-strong flex flex-wrap gap-1.5 max-h-[56px] overflow-hidden">
+            <% project.technologies.forEach(tech => { %>
+            <span class="px-2 py-0.5 bg-bg-subtle border border-border-strong text-[11px] font-mono font-medium text-text-main rounded-xs"><%= tech %></span>
+            <% }) %>
+          </div>
+          
+          <div class="pt-3 mt-3 border-t border-border-strong flex items-center justify-between gap-2">
+            <div class="flex items-center gap-3">
+              <% if (project.githubUrl) { %>
+                <a href="<%= project.githubUrl %>" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-text-main hover:text-accent flex items-center gap-1.5 transition-colors" title="GitHub">
+                  <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                  <span>Code</span>
+                </a>
+              <% } %>
+              <% if (project.liveUrl) { %>
+                <a href="<%= project.liveUrl %>" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-text-main hover:text-accent flex items-center gap-1.5 transition-colors" title="Live Demo">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                  <span>Live</span>
+                </a>
+              <% } %>
+            </div>
+
+            <button type="button" onclick="openProjectModal(<%= index %>)" class="text-xs font-mono font-semibold text-text-muted hover:text-accent flex items-center gap-1 transition-colors cursor-pointer">
+              <span>Details</span>
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+            </button>
+          </div>
+        </div>
       </article>
       <% }) %>
     </div>
@@ -523,6 +545,89 @@ tailwind.config = {
   </div>
 </section>
 
+<!-- PROJECT DETAIL POPUP MODAL -->
+<div id="project-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm transition-all duration-200" aria-modal="true" role="dialog" aria-hidden="true">
+  <div class="relative w-full max-w-4xl bg-bg-raised border border-border-strong shadow-2xl rounded-sm overflow-hidden flex flex-col max-h-[92vh] my-auto transition-colors duration-200" onclick="event.stopPropagation()">
+    
+    <!-- Modal Header -->
+    <div class="flex items-center justify-between px-6 py-4 border-b border-border-strong bg-bg-subtle shrink-0">
+      <div class="flex items-center gap-3 min-w-0 pr-4">
+        <span id="modal-project-num" class="font-mono text-xs font-bold tracking-widest text-accent uppercase px-2 py-0.5 border border-accent/30 bg-accent/10 rounded-xs shrink-0">01</span>
+        <h3 id="modal-project-title" class="font-display text-lg sm:text-xl font-bold text-text-main truncate">Project Title</h3>
+      </div>
+      <button type="button" onclick="closeProjectModal()" class="w-9 h-9 flex items-center justify-center border border-border-strong bg-bg-raised text-text-muted hover:text-text-main hover:border-accent transition-colors rounded-sm cursor-pointer shrink-0" aria-label="Close modal" title="Close (Esc)">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+    </div>
+
+    <!-- Modal Body (Scrollable) -->
+    <div class="p-6 sm:p-8 overflow-y-auto custom-scrollbar space-y-6">
+      
+      <!-- Multi-Image Carousel / Single Image Gallery -->
+      <div id="modal-image-wrapper" class="hidden border border-border-strong bg-black/90 rounded-sm overflow-hidden relative shadow-lg">
+        <div id="modal-carousel-track" class="relative w-full h-72 sm:h-96 md:h-[440px] flex items-center justify-center overflow-hidden">
+          <!-- Injected dynamically via JS -->
+        </div>
+        <!-- Open original full image button -->
+        <a id="modal-image-full-btn" href="#" target="_blank" rel="noopener noreferrer" class="absolute top-3 right-3 bg-black/80 hover:bg-black text-white text-xs font-mono px-2.5 py-1 rounded-xs border border-white/20 z-10 flex items-center gap-1.5 transition-colors shadow-md" title="Open full-resolution image in new tab">
+          <span>Full Resolution</span>
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+        </a>
+        <!-- Prev/Next Controls -->
+        <button id="modal-prev-btn" onclick="slideModalImg(-1)" class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-black/80 hover:bg-black text-white border border-white/20 rounded-full transition-colors cursor-pointer z-10 shadow-lg" aria-label="Previous Image">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path></svg>
+        </button>
+        <button id="modal-next-btn" onclick="slideModalImg(1)" class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-black/80 hover:bg-black text-white border border-white/20 rounded-full transition-colors cursor-pointer z-10 shadow-lg" aria-label="Next Image">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path></svg>
+        </button>
+        <!-- Counter badge -->
+        <div id="modal-image-counter" class="absolute bottom-3 right-3 bg-black/80 backdrop-blur-xs text-white text-xs font-mono px-2.5 py-1 rounded-xs border border-white/20 z-10 shadow-sm">
+          1 / 1
+        </div>
+      </div>
+
+      <!-- Full Description -->
+      <div>
+        <h4 class="font-mono text-xs font-semibold uppercase tracking-widest text-text-muted mb-2.5 flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-accent" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"></path></svg>
+          Project Overview
+        </h4>
+        <p id="modal-project-desc" class="text-text-main text-sm sm:text-base leading-relaxed whitespace-pre-line bg-bg-subtle/50 p-4 border border-border-strong/60 rounded-sm">
+        </p>
+      </div>
+
+      <!-- Tech Stack -->
+      <div>
+        <h4 class="font-mono text-xs font-semibold uppercase tracking-widest text-text-muted mb-2.5 flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-accent" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+          Technologies & Tools
+        </h4>
+        <div id="modal-project-techs" class="flex flex-wrap gap-2">
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="px-6 py-4 border-t border-border-strong bg-bg-subtle flex flex-wrap items-center justify-between gap-4 shrink-0">
+      <div class="flex items-center gap-3">
+        <a id="modal-github-link" href="#" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2 bg-bg-raised hover:bg-border-strong border border-border-strong text-xs sm:text-sm font-bold text-text-main transition-colors rounded-sm shadow-sm">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+          <span>GitHub</span>
+        </a>
+        <a id="modal-live-link" href="#" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-dark text-white text-xs sm:text-sm font-bold transition-colors rounded-sm shadow-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+          <span>Live Demo ↗</span>
+        </a>
+      </div>
+      <button type="button" onclick="closeProjectModal()" class="px-4 py-2 bg-bg-raised border border-border-strong text-xs font-mono font-semibold text-text-muted hover:text-text-main transition-colors rounded-sm cursor-pointer">
+        Close (Esc)
+      </button>
+    </div>
+
+  </div>
+</div>
+
 </main>
 
 <footer class="bg-gray-950 py-6 border-t border-gray-900">
@@ -642,6 +747,137 @@ tailwind.config = {
       });
     });
   }
+
+  // --- Project Popup Modal Logic ---
+  const allProjectsData = <%- JSON.stringify(projects) %>;
+  let currentModalImgIndex = 0;
+  let currentModalImages = [];
+
+  function openProjectModal(index) {
+    const project = allProjectsData[index];
+    if (!project) return;
+
+    document.getElementById('modal-project-num').innerText = String(index + 1).padStart(2, '0');
+    document.getElementById('modal-project-title').innerText = project.title || 'Project Details';
+    document.getElementById('modal-project-desc').innerText = project.description || 'No description available.';
+
+    // Images
+    const wrapper = document.getElementById('modal-image-wrapper');
+    const prevBtn = document.getElementById('modal-prev-btn');
+    const nextBtn = document.getElementById('modal-next-btn');
+    const counter = document.getElementById('modal-image-counter');
+
+    const images = (project.images && project.images.length > 0) 
+      ? project.images 
+      : (project.image ? [project.image] : []);
+
+    currentModalImages = images;
+    currentModalImgIndex = 0;
+
+    if (images.length > 0) {
+      wrapper.classList.remove('hidden');
+      renderModalImages();
+      if (images.length > 1) {
+        prevBtn.classList.remove('hidden');
+        nextBtn.classList.remove('hidden');
+        counter.classList.remove('hidden');
+      } else {
+        prevBtn.classList.add('hidden');
+        nextBtn.classList.add('hidden');
+        counter.classList.add('hidden');
+      }
+    } else {
+      wrapper.classList.add('hidden');
+    }
+
+    // Technologies
+    const techsContainer = document.getElementById('modal-project-techs');
+    techsContainer.innerHTML = '';
+    if (project.technologies && project.technologies.length > 0) {
+      project.technologies.forEach(tech => {
+        const span = document.createElement('span');
+        span.className = 'px-2.5 py-1 bg-bg-subtle border border-border-strong text-xs font-mono font-medium text-text-main rounded-xs';
+        span.innerText = tech;
+        techsContainer.appendChild(span);
+      });
+    }
+
+    // GitHub & Live demo links
+    const ghLink = document.getElementById('modal-github-link');
+    const liveLink = document.getElementById('modal-live-link');
+    if (project.githubUrl) {
+      ghLink.href = project.githubUrl;
+      ghLink.classList.remove('hidden');
+    } else {
+      ghLink.classList.add('hidden');
+    }
+    if (project.liveUrl) {
+      liveLink.href = project.liveUrl;
+      liveLink.classList.remove('hidden');
+    } else {
+      liveLink.classList.add('hidden');
+    }
+
+    const modal = document.getElementById('project-modal');
+    modal.classList.remove('hidden');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function renderModalImages() {
+    const track = document.getElementById('modal-carousel-track');
+    const counter = document.getElementById('modal-image-counter');
+    const fullBtn = document.getElementById('modal-image-full-btn');
+    if (!currentModalImages || currentModalImages.length === 0) return;
+
+    const currentImgUrl = currentModalImages[currentModalImgIndex];
+    if (fullBtn) {
+      fullBtn.href = currentImgUrl;
+    }
+
+    track.innerHTML = `
+      <img src="${currentImgUrl}" 
+           alt="Project Screenshot ${currentModalImgIndex + 1}" 
+           class="w-full h-full object-contain p-2 transition-all duration-200 cursor-zoom-in"
+           onclick="window.open('${currentImgUrl}', '_blank')">
+    `;
+    if (counter) {
+      counter.innerText = `${currentModalImgIndex + 1} / ${currentModalImages.length}`;
+    }
+  }
+
+  function slideModalImg(delta) {
+    if (!currentModalImages || currentModalImages.length <= 1) return;
+    currentModalImgIndex = (currentModalImgIndex + delta + currentModalImages.length) % currentModalImages.length;
+    renderModalImages();
+  }
+
+  function closeProjectModal() {
+    const modal = document.getElementById('project-modal');
+    if (!modal) return;
+    modal.classList.add('hidden');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  document.addEventListener('keydown', (e) => {
+    const modal = document.getElementById('project-modal');
+    if (!modal || modal.classList.contains('hidden')) return;
+
+    if (e.key === 'Escape') {
+      closeProjectModal();
+    } else if (e.key === 'ArrowLeft') {
+      slideModalImg(-1);
+    } else if (e.key === 'ArrowRight') {
+      slideModalImg(1);
+    }
+  });
+
+  document.getElementById('project-modal')?.addEventListener('click', (e) => {
+    if (e.target.id === 'project-modal') {
+      closeProjectModal();
+    }
+  });
 
   document.addEventListener('DOMContentLoaded', () => {
     updateThemeIcons();
