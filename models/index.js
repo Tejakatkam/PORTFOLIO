@@ -8,6 +8,7 @@ const ProfileSchema = new mongoose.Schema({
   resumeLink: { type: String, default: '/resume.pdf' },
   resumeData: { type: Buffer },
   resumeMimeType: { type: String, default: 'application/pdf' },
+  resumeUpdatedAt: { type: Date, default: Date.now },
   email: { type: String, default: 'tejakatkam2005@gmail.com' },
   phone: { type: String, default: '+91 9542911923' },
   github: { type: String, default: 'https://github.com/TejaKatkam' },

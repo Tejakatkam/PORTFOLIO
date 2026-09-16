@@ -123,6 +123,11 @@ app.get('/', async (req, res) => {
 
 app.get('/resume.pdf', async (req, res) => {
   try {
+    // Prevent browser from caching old PDF versions
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+
     const profile = await models.Profile.findOne();
     if (profile && profile.resumeData && profile.resumeData.length > 0) {
       res.set('Content-Type', profile.resumeMimeType || 'application/pdf');
@@ -209,6 +214,7 @@ app.post('/admin/api/profile', requireAuth, upload.single('resumeFile'), async (
       data.resumeData = req.file.buffer;
       data.resumeMimeType = req.file.mimetype || 'application/pdf';
       data.resumeLink = '/resume.pdf';
+      data.resumeUpdatedAt = new Date();
     }
 
     await models.Profile.findOneAndUpdate({}, data, { upsert: true });
